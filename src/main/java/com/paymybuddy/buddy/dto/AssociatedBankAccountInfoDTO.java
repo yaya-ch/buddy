@@ -1,11 +1,9 @@
 package com.paymybuddy.buddy.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -15,11 +13,9 @@ import javax.validation.constraints.NotNull;
  * This dto class holds the AssociatedBankAccountInfo related data
  */
 
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
-@ToString
 public class AssociatedBankAccountInfoDTO {
 
     /**
