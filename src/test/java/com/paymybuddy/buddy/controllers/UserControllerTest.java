@@ -1,8 +1,8 @@
 package com.paymybuddy.buddy.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paymybuddy.buddy.converters.UserConverter;
 import com.paymybuddy.buddy.domain.User;
-import com.paymybuddy.buddy.dto.AuthorityDTO;
 import com.paymybuddy.buddy.dto.ContactDTO;
 import com.paymybuddy.buddy.dto.UserDTO;
 import com.paymybuddy.buddy.service.UserService;
@@ -43,6 +43,9 @@ class UserControllerTest {
     @MockBean
     private UserService userService;
 
+    @MockBean
+    private UserConverter converter;
+
     @Mock
     private ModelMapper mapper;
 
@@ -52,11 +55,7 @@ class UserControllerTest {
         user = new User();
         Set<ContactDTO> contacts = new HashSet<>();
         UserDTO userDTO = new UserDTO();
-        AuthorityDTO authority = new AuthorityDTO();
-        authority.setName("ADMIN");
-        Set<AuthorityDTO> authorities = new HashSet<>();
-        authorities.add(authority);
-        userDTO.setAuthorities(authorities);
+        userDTO.setRole("ADMIN");
         userDTO.setCivility("MADAM");
         userDTO.setFirstName("girl");
         userDTO.setLastName("woman");

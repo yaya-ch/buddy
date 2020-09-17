@@ -56,11 +56,11 @@ public class UserDTO {
     private String password;
 
     /**
-     * The user's authorities(roles).
+     * The user's roles.
      */
     @NotNull
     @NotBlank
-    private Set<AuthorityDTO> authorities;
+    private String role;
 
     /**
      * The user's birth date.

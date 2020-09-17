@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
+import com.paymybuddy.buddy.enums.Role;
 import com.paymybuddy.buddy.enums.Civility;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -63,9 +64,9 @@ public class User {
     private static final int LENGTH = 5;
 
     /**
-     * Number of maximum and maximum characters allowed in authorities.
+     * Number of maximum and maximum characters allowed in roles.
      */
-    private static final int ROLE_LENGTH = 4;
+    private static final int ROLE_LENGTH = 10;
 
     /**
      * Number of maximum and maximum characters allowed in phone numbers.
@@ -118,17 +119,12 @@ public class User {
     private String password;
 
     /**
-     * A set of roles associated to a given user.
-     * may be USER, ADMIN or both
+     * The user's role: Admin or user.
      */
     @NotNull
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "user_role",
-            joinColumns = {@JoinColumn(name = "user_id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_id")}
-    )
-    private Set<Authority> authorities;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", updatable = false, length = ROLE_LENGTH)
+    private Role role;
 
     /**
      * User's birth date.
