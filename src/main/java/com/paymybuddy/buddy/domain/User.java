@@ -121,6 +121,7 @@ public class User {
      * A set of roles associated to a given user.
      * may be USER, ADMIN or both
      */
+    @NotNull
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "user_role",

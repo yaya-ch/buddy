@@ -21,7 +21,10 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/", "/buddy").permitAll();
+        http.csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/", "/buddy", "/login", "/signup")
+                .permitAll()
+                .and().formLogin();
     }
 }
