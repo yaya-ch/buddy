@@ -40,7 +40,7 @@ class UserConverterImplTest {
         BuddyAccountInfo accountInfo = new BuddyAccountInfo();
         user = new User();
         user.setCivility(Civility.SIR);
-        user.setRole(Role.USER);
+        user.setRole(Role.ROLE_USER);
         user.setFirstName("User");
         user.setLastName("user");
         user.setEmail("user@user.com");
@@ -63,7 +63,7 @@ class UserConverterImplTest {
         userDTO.setLastName("girl");
         userDTO.setEmail("girl@girl.com");
         userDTO.setPassword("KJUIOYY666");
-        userDTO.setRole("USER");
+        userDTO.setRole("ROLE_USER");
         userDTO.setBirthDate(LocalDate.of(1997, 12, 22));
         userDTO.setAddress("girl address");
         userDTO.setCity("girl city");
@@ -133,21 +133,21 @@ class UserConverterImplTest {
     @DisplayName("Convert UserDTO to User entity")
     @Test
     void userDTOToUserEntity_shouldConvertUserDTOToUserEntity() {
-        User user = converter.userDTOToUserEntity(userDTO);
+        User user1 = converter.userDTOToUserEntity(userDTO);
 
-        assertEquals(user.getCivility().toString(), userDTO.getCivility());
-        assertEquals(user.getFirstName(), userDTO.getFirstName());
-        assertEquals(user.getLastName(), userDTO.getLastName());
-        assertEquals(user.getEmail(), userDTO.getEmail());
-        assertEquals(user.getPassword(), userDTO.getPassword());
-        assertEquals(user.getRole().toString(), userDTO.getRole());
-        assertEquals(user.getBirthDate(), userDTO.getBirthDate());
-        assertEquals(user.getAddress(), userDTO.getAddress());
-        assertEquals(user.getCity(), userDTO.getCity());
-        assertEquals(user.getZip(), userDTO.getZip());
-        assertEquals(user.getContacts().size(), userDTO.getContacts().size());
-        assertEquals(user.getPhone(), userDTO.getPhone());
-        //assertEquals(user.getBuddyAccountInfo(), userDTO.getBuddyAccountInfo());
+        assertEquals(user1.getCivility().toString(), userDTO.getCivility());
+        assertEquals(user1.getFirstName(), userDTO.getFirstName());
+        assertEquals(user1.getLastName(), userDTO.getLastName());
+        assertEquals(user1.getEmail(), userDTO.getEmail());
+        assertEquals(user1.getPassword(), userDTO.getPassword());
+        assertEquals(user1.getRole().toString(), userDTO.getRole());
+        assertEquals(user1.getBirthDate(), userDTO.getBirthDate());
+        assertEquals(user1.getAddress(), userDTO.getAddress());
+        assertEquals(user1.getCity(), userDTO.getCity());
+        assertEquals(user1.getZip(), userDTO.getZip());
+        assertEquals(user1.getContacts().size(), userDTO.getContacts().size());
+        assertEquals(user1.getPhone(), userDTO.getPhone());
+        //assertEquals(user1.getBuddyAccountInfo(), userDTO.getBuddyAccountInfo());
     }
 
     @DisplayName("Convert UserDTO list to User entity list")

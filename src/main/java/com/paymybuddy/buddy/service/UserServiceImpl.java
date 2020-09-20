@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 /**
  * @author Yahia CHERIFI
  * This class implements the UserService interface
@@ -54,9 +52,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User save(final User user) {
-        Optional<User> checkForExistingUser =
+        User checkForExistingUser =
                 userRepository.findByEmail(user.getEmail());
-        if (checkForExistingUser.isPresent()) {
+        if (checkForExistingUser != null) {
             LOGGER.error("Failed to create account for {}.", user.getEmail());
             throw new DataIntegrityViolationException(
                     "Failed to create a new account."

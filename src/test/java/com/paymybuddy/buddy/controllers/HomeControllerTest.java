@@ -1,15 +1,18 @@
 package com.paymybuddy.buddy.controllers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -19,23 +22,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Tag("controllers")
 @RunWith(SpringRunner.class)
-@WebMvcTest(HomeController.class)
+@SpringBootTest
 class HomeControllerTest {
 
     @Autowired
+    private WebApplicationContext context;
+
     private MockMvc mockMvc;
 
-    @DisplayName("GET REQUEST: OK '/' and '/buddy' return the correct message")
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
+
+    private static final String message = "<h1>Welcome on pay my buddy."
+            +"\nThe easiest way to transfer your money</h1>";
+
+    @DisplayName("GET REQUEST: OK '/' return the correct message")
     @Test
     void homePage_shouldReturnCorrectMessage() throws Exception {
-        String message = "<h1>Welcome on pay my buddy."
-                +"\nThe easiest way to transfer your money</h1>";
-
-        mockMvc.perform(get("/buddy"))
+        mockMvc.perform(get("/"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
+    }
 
-        mockMvc.perform(get("/"))
+    @DisplayName("GET REQUEST: OK '/buddy' return the correct message")
+    @Test
+    void homePageBuddyPath_shouldReturnCorrectMessage() throws Exception {
+        mockMvc.perform(get("/buddy"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
     }

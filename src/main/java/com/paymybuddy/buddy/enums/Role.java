@@ -9,10 +9,10 @@ public enum Role {
     /**
      * Administrator role.
      */
-    ADMIN,
+    ROLE_ADMIN,
 
     /**
      * User role.
      */
-    USER
+    ROLE_USER
 }

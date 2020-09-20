@@ -4,11 +4,10 @@ import com.paymybuddy.buddy.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
-
 /**
  * @author Yahia CHERIFI
  * This interface provides methods that permit interaction with the database.
+ * it extends the JpaRepository interface
  */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -18,5 +17,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
      * @param email the provided email
      * @return the matching user
      */
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
 }

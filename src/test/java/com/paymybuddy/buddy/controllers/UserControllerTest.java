@@ -1,11 +1,11 @@
 package com.paymybuddy.buddy.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.paymybuddy.buddy.converters.UserConverter;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.dto.ContactDTO;
 import com.paymybuddy.buddy.dto.UserDTO;
 import com.paymybuddy.buddy.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -13,12 +13,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -26,6 +30,8 @@ import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -34,33 +40,41 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Tag("controllers")
 @RunWith(SpringRunner.class)
-@WebMvcTest(UserController.class)
+@SpringBootTest
 class UserControllerTest {
 
     @Autowired
+    private WebApplicationContext context;
+
     private MockMvc mockMvc;
 
     @MockBean
     private UserService userService;
 
     @MockBean
-    private UserConverter converter;
+    private PasswordEncoder passwordEncoder;
 
     @Mock
     private ModelMapper mapper;
 
     private User user;
 
+    @BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+    }
+
     private User setUser() {
         user = new User();
+        String encoded = passwordEncoder.encode("mljdyefdj254");
         Set<ContactDTO> contacts = new HashSet<>();
         UserDTO userDTO = new UserDTO();
-        userDTO.setRole("ADMIN");
+        userDTO.setRole("ROLE_ADMIN");
         userDTO.setCivility("MADAM");
         userDTO.setFirstName("girl");
         userDTO.setLastName("woman");
         userDTO.setEmail("girl@woman.com");
-        userDTO.setPassword("mljdye_fdj254");
+        userDTO.setPassword(encoded);
         userDTO.setBirthDate(LocalDate.of(1967, 12, 21));
         userDTO.setAddress("any address");
         userDTO.setCity("any city");
@@ -72,7 +86,7 @@ class UserControllerTest {
         return user;
     }
 
-    @DisplayName("POST request: OK. Saving a new user")
+    @DisplayName("POST REQUEST: User is saved successfully")
     @Test
     void givenNewUser_whenSaveMethodIsCalled_thenUserShouldBePersistedToDataBase() throws Exception {
         when(userService.save(any(User.class))).thenReturn(user);
@@ -82,5 +96,51 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("Request on private '/user' service should redirect user to login form")
+    @Test
+    void givenGetRequestOnPrivateUserService_whenUserIsOffline_thenRequestShouldBeRedirected() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/user")).andExpect(status().is3xxRedirection());
+    }
+
+    @DisplayName("Request on private '/admin' service should redirect user to login form")
+    @Test
+    void givenGetRequestOnPrivateAdminService_whenUserIsOffline_thenRequestShouldBeRedirected() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin")).andExpect(status().is3xxRedirection());
+    }
+
+    @DisplayName("Admin with correct credentials logs successfully to account")
+    @WithMockUser(username = "admin@admin.com", password = "test123", roles = "ADMIN")
+    @Test
+    void givenCorrectAdminCredentials_whenUserLogsToAccount_thenResponseShouldBeOk() throws Exception {
+        String message = "<h1>Welcome admin</h1>";
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin")).andExpect(status().isOk())
+                .andExpect(content().string(message));
+    }
+
+    @DisplayName("User with correct credentials logs successfully to account")
+    @WithMockUser(username = "user@user.com", password = "test123", roles = "USER")
+    @Test
+    void givenCorrectUserCredentials_whenUserLogsToAccount_thenResponseShouldBeOk() throws Exception {
+        String message = "<h1>Welcome user</h1>";
+        mockMvc.perform(MockMvcRequestBuilders.get("/user")).andExpect(status().isOk())
+                .andExpect(content().string(message));
+    }
+
+    @DisplayName("Admin with correct credentials logs successfully to user account")
+    @WithMockUser(username = "admin@admin.com", password = "test123", roles = "ADMIN")
+    @Test
+    void givenUserWithROLE_ADMIN_whenUserLogsToUserAccount_thenResponseShouldBeOk() throws Exception {
+        String message = "<h1>Welcome user</h1>";
+        mockMvc.perform(MockMvcRequestBuilders.get("/user")).andExpect(status().isOk())
+                .andExpect(content().string(message));
+    }
+
+    @DisplayName("User with ROLE_USER cannot log to admin account")
+    @WithMockUser(username = "user@user.com", password = "test123", roles = "USER")
+    @Test
+    void givenUserWithROLE_USER_whenUserLogsToAdminAccount_thenAccessShouldBeForbidden() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin")).andExpect(status().is4xxClientError());
     }
 }
