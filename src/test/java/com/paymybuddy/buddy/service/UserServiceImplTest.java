@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -59,5 +61,30 @@ class UserServiceImplTest {
         when(userRepository.findByEmail("email@mail.com")).thenReturn(user);
 
         assertThrows(DataIntegrityViolationException.class, () -> userService.save(user1));
+    }
+
+    @Test
+    void findById_shouldCallTheAppropriateMethodInUserRepository() {
+        userService.findById(anyInt());
+        verify(userRepository, times(1)).findById(anyInt());
+    }
+
+    @Test
+    void findByEmail_shouldCallTheAppropriateMethodInUserRepository() {
+        userService.findByEmail(anyString());
+        verify(userRepository, times(1)).findByEmail(anyString());
+    }
+
+    @Test
+    void updateUser_shouldCallTheAppropriateMethodInUserRepository() {
+        User user = new User();
+        userService.updateUser(user);
+        verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void deleteById_shouldCallTheAppropriateMethodInUserRepository() {
+        userService.deleteById(anyInt());
+        verify(userRepository, times(1)).deleteById(anyInt());
     }
 }

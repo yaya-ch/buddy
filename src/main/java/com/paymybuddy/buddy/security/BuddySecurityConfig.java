@@ -29,7 +29,7 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
     /**
      * UserDetailsService to be injected.
      */
-    private UserDetailsService userDetailsService;
+    private final UserDetailsService userDetailsService;
 
     /**
      * Constructor injection.
@@ -63,9 +63,11 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/admin").hasRole("ADMIN")
+                .antMatchers("/admin", "/delete", "/findAll")
+                .hasRole("ADMIN")
                 .antMatchers("/user").hasAnyRole("ADMIN", "USER")
-                .antMatchers("/", "/buddy", "/signup")
+                .antMatchers("/", "/buddy", "/signup",
+                        "/update/**", "/delete/**")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin();

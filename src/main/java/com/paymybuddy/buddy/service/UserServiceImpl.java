@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * @author Yahia CHERIFI
  * This class implements the UserService interface
@@ -47,8 +49,26 @@ public class UserServiceImpl implements UserService {
     }
 
     /**
+     * @param id the provided user's id.
+     * @return a call to the UserRepository's method findById()
+     */
+    @Override
+    public Optional<User> findById(final Integer id) {
+        return userRepository.findById(id);
+    }
+
+    /**
+     * @param email the provided email
+     * @return a call to the UserRepository's method findByEmail()
+     */
+    @Override
+    public User findByEmail(final String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    /**
      * @param user to be saved
-     * @return the saved person
+     * @return a call to the userRepository method save
      */
     @Override
     public User save(final User user) {
@@ -63,5 +83,21 @@ public class UserServiceImpl implements UserService {
         }
         LOGGER.info("New account created for {}.", user.getEmail());
         return userRepository.save(user);
+    }
+
+    /**
+     * @param userToUpdate the new user's PII
+     */
+    @Override
+    public User updateUser(final User userToUpdate) {
+        return userRepository.save(userToUpdate);
+    }
+
+    /**
+     * @param id the provided user's id
+     */
+    @Override
+    public void deleteById(final Integer id) {
+        userRepository.deleteById(id);
     }
 }

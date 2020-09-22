@@ -1,6 +1,7 @@
 package com.paymybuddy.buddy.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.paymybuddy.buddy.converters.UserConverter;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.dto.ContactDTO;
 import com.paymybuddy.buddy.dto.UserDTO;
@@ -10,12 +11,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -26,9 +27,12 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -54,7 +58,10 @@ class UserControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoder;
 
-    @Mock
+    @MockBean
+    private UserConverter userConverter;
+
+    @MockBean
     private ModelMapper mapper;
 
     private User user;
@@ -141,6 +148,46 @@ class UserControllerTest {
     @WithMockUser(username = "user@user.com", password = "test123", roles = "USER")
     @Test
     void givenUserWithROLE_USER_whenUserLogsToAdminAccount_thenAccessShouldBeForbidden() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/admin")).andExpect(status().is4xxClientError());
+        mockMvc.perform(MockMvcRequestBuilders.get("/admin"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @DisplayName("Update an existing user successfully")
+    @Test
+    void givenAnExistingUser_whenUpdateUserIsCalled_thenUserCredentialsShouldBeUpdated() throws Exception {
+        Optional<User> user1 = Optional.of(new User());
+        when(userService.findById(anyInt())).thenReturn(user1);
+        mapper.map(user1.get(), user);
+        when(userService.updateUser(any(User.class))).thenReturn(user);
+        mockMvc.perform(MockMvcRequestBuilders.put("/update/2")
+                .content(new ObjectMapper().writeValueAsString(setUser()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("Update throws exception")
+    @Test
+    void givenNonExistingUser_whenUpdateUserIsCalled_thenExceptionShouldBeThrown() {
+        UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
+        UserDTO userDTO = new UserDTO();
+        when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
+        assertThrows(UsernameNotFoundException.class, () -> controller.updateUser(userDTO, anyInt()));
+    }
+
+    @DisplayName("Delete an existing user successfully")
+    @Test
+    void givenAnExistingUser_whenDeleteUserIsCalled_thenUserShouldBeDeleted() throws Exception {
+        Optional<User> user1 = Optional.of(new User());
+        when(userService.findById(anyInt())).thenReturn(user1);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/delete/1")).andExpect(status().isOk());
+    }
+
+    @DisplayName("Delete a user throws exception")
+    @Test
+    void givenNonExistingUser_whenDeleteUserIsCalled_thenExceptionShouldBeThrown() throws Exception {
+        UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
+        when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
+        assertThrows(UsernameNotFoundException.class, () -> controller.deleteUserById(1));
     }
 }

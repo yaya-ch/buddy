@@ -6,12 +6,19 @@ import com.paymybuddy.buddy.dto.UserDTO;
 import com.paymybuddy.buddy.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.Optional;
 
 
 /**
@@ -37,26 +44,34 @@ public class UserController {
      * UserConverter to be injected.
      * Will be used to convert entities to DTOs and vice versa
      */
-    private UserConverter userConverter;
+    private final UserConverter userConverter;
 
     /**
      * BcryptPassWordEncoder to inject.
      */
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+
+    /**
+     * ModelMapper to inject.
+     */
+    private final ModelMapper mapper;
 
     /**
      * Constructor injection.
      * @param service UserService
      * @param converter UserConverter
      * @param encoder BcryptPassWordEncoder
+     * @param modelMapper modelMapper
      */
     @Autowired
     public UserController(final UserService service,
                           final UserConverter converter,
-                          final PasswordEncoder encoder) {
+                          final PasswordEncoder encoder,
+                          final ModelMapper modelMapper) {
         this.userService = service;
         this.userConverter = converter;
         this.passwordEncoder = encoder;
+        this.mapper = modelMapper;
     }
 
     /**
@@ -93,5 +108,54 @@ public class UserController {
     public String adminLogin() {
         LOGGER.debug("Get Request sent from the admin login");
         return "<h1>Welcome admin</h1>";
+    }
+
+    /**
+     * Update user.
+     * @param userDTO groups the information to update
+     * @param id the user's id
+     * @return success message
+     * @throws UsernameNotFoundException if no matching email was found
+     */
+    @PutMapping("/update/{id}")
+    public String updateUser(@RequestBody final UserDTO userDTO,
+                             @PathVariable final Integer id) {
+        LOGGER.info("Trying to update user {}", id);
+        Optional<User> userToUpdate = userService.findById(id);
+        if (userToUpdate.isPresent()) {
+            String encodedPassWord =
+                    passwordEncoder.encode(userDTO.getPassword());
+            userDTO.setPassword(encodedPassWord);
+            mapper.map(userDTO, userToUpdate.get());
+            userService.updateUser(userToUpdate.get());
+            LOGGER.info("User updated successfully {}", id);
+            return "User updated successfully";
+        } else {
+            LOGGER.error("failed to update user with id {}."
+                    + " No matching id was found", id);
+            throw new UsernameNotFoundException("No matching id was found");
+        }
+    }
+
+    /**
+     * Delete a user by id.
+     * @param id the user's id
+     * @return success message if deleted
+     */
+    @DeleteMapping("/delete/{id}")
+    public String deleteUserById(@PathVariable final Integer id) {
+        LOGGER.debug("Delete request sent from the user controller."
+                + " Trying to delete user with id {}", id);
+        Optional<User> checkForExistingUser = userService.findById(id);
+        if (checkForExistingUser.isPresent()) {
+            LOGGER.info("User with id {} deleted successfully.", id);
+            userService.deleteById(id);
+            return "User deleted successfully " + id;
+        } else {
+            LOGGER.error("Failed to delete user with id: {}."
+                    + " No matching Id was found", id);
+            throw new UsernameNotFoundException("Failed to delete user."
+                    + " There is no matching id in database");
+        }
     }
 }
