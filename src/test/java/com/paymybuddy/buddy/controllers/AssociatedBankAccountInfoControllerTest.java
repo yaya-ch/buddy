@@ -88,7 +88,7 @@ class AssociatedBankAccountInfoControllerTest {
         Optional<AssociatedBankAccountInfo> associatedBankAccountInfo1 = Optional.of(new AssociatedBankAccountInfo());
         when(service.findById(anyInt())).thenReturn(associatedBankAccountInfo1);
         mapper.map(associatedBankAccountInfo1.get(), associatedBankAccountInfo);
-        when(service.update(any(AssociatedBankAccountInfo.class))).thenReturn(associatedBankAccountInfo);
+        when(service.updateBankAccountInfo(any(AssociatedBankAccountInfo.class))).thenReturn(associatedBankAccountInfo);
         mockMvc.perform(MockMvcRequestBuilders.put("/bankAccountInfo/update/1")
                 .content(new ObjectMapper().writeValueAsString(associatedBankAccountInfo))
                 .contentType(MediaType.APPLICATION_JSON)

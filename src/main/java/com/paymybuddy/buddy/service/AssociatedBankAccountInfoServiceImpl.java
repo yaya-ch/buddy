@@ -2,6 +2,7 @@ package com.paymybuddy.buddy.service;
 
 import com.paymybuddy.buddy.domain.AssociatedBankAccountInfo;
 import com.paymybuddy.buddy.repository.AssociatedBankAccountInfoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -25,6 +26,7 @@ public class AssociatedBankAccountInfoServiceImpl
      * Constructor injection.
      * @param repository bankAccountInfoRepository
      */
+    @Autowired
     public AssociatedBankAccountInfoServiceImpl(
             final AssociatedBankAccountInfoRepository repository) {
         this.bankAccountInfoRepository = repository;
@@ -46,7 +48,7 @@ public class AssociatedBankAccountInfoServiceImpl
      * @return a call to the AssociatedBankAccountInfo repo layer
      */
     @Override
-    public AssociatedBankAccountInfo update(
+    public AssociatedBankAccountInfo updateBankAccountInfo(
             final AssociatedBankAccountInfo bankAccountInfo) {
         return bankAccountInfoRepository.save(bankAccountInfo);
     }

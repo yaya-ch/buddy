@@ -1,6 +1,5 @@
 package com.paymybuddy.buddy.service;
 
-import com.paymybuddy.buddy.converters.UserConverter;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.repository.UserRepository;
 import org.junit.jupiter.api.*;
@@ -8,9 +7,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.dao.DataIntegrityViolationException;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -26,13 +23,10 @@ class UserServiceImplTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private UserConverter userConverter;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        userService = new UserServiceImpl(userRepository, userConverter);
+        userService = new UserServiceImpl(userRepository);
     }
 
     @AfterEach

@@ -1,6 +1,5 @@
 package com.paymybuddy.buddy.service;
 
-import com.paymybuddy.buddy.converters.UserConverter;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
@@ -32,20 +31,12 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     /**
-     * UserConverter to be injected.
-     */
-    private final UserConverter userConverter;
-
-    /**
      * Constructor injection.
      * @param repository injecting UserRepository
-     * @param converter injecting UserConverter
      */
     @Autowired
-    public UserServiceImpl(final UserRepository repository,
-                           final UserConverter converter) {
+    public UserServiceImpl(final UserRepository repository) {
         this.userRepository = repository;
-        this.userConverter = converter;
     }
 
     /**

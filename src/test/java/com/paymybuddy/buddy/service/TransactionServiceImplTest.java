@@ -77,7 +77,7 @@ class TransactionServiceImplTest {
 
     @DisplayName("Get user transactions throws exception")
     @Test
-    void givenNonExistingUserId_whenGetUserTransactionsIsCalled_thenExceptionShouldBeThrown() throws ElementNotFoundException {
+    void givenNonExistingUserId_whenGetUserTransactionsIsCalled_thenExceptionShouldBeThrown() {
         User user = new User();
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
         assertThrows(ElementNotFoundException.class, () -> transactionService.findUserTransactions(anyInt()));

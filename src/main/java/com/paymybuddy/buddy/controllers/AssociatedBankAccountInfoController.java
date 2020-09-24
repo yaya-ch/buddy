@@ -107,7 +107,8 @@ public class AssociatedBankAccountInfoController {
         if (checkForExistingBankAccount.isPresent()) {
             LOGGER.debug("Updating information related to bank account {}", id);
             mapper.map(bankAccountInfoDTO, checkForExistingBankAccount.get());
-            bankAccountInfoService.update(checkForExistingBankAccount.get());
+            bankAccountInfoService
+                    .updateBankAccountInfo(checkForExistingBankAccount.get());
             LOGGER.info("Information related to bank account"
                     + " {} updated successfully", id);
             return "Bank account information updated successfully.";

@@ -172,7 +172,7 @@ class UserControllerTest {
         UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
         UserDTO userDTO = new UserDTO();
         when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
-        assertThrows(UsernameNotFoundException.class, () -> controller.updateUser(userDTO, anyInt()));
+        assertThrows(UsernameNotFoundException.class, () -> controller.updateUser(userDTO, 1));
     }
 
     @DisplayName("Delete an existing user successfully")
@@ -185,7 +185,7 @@ class UserControllerTest {
 
     @DisplayName("Delete a user throws exception")
     @Test
-    void givenNonExistingUser_whenDeleteUserIsCalled_thenExceptionShouldBeThrown() throws Exception {
+    void givenNonExistingUser_whenDeleteUserIsCalled_thenExceptionShouldBeThrown() {
         UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
         when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
         assertThrows(UsernameNotFoundException.class, () -> controller.deleteUserById(1));

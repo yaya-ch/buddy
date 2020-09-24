@@ -25,5 +25,6 @@ public interface AssociatedBankAccountInfoService {
      * @param bankAccountInfo account to update
      * @return  a call to the AssociatedBankAccountInfo repo layer
      */
-    AssociatedBankAccountInfo update(AssociatedBankAccountInfo bankAccountInfo);
+    AssociatedBankAccountInfo updateBankAccountInfo(
+            AssociatedBankAccountInfo bankAccountInfo);
 }

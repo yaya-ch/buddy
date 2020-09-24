@@ -15,8 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @Tag("security")
@@ -58,10 +57,10 @@ class UserDetailsServiceImplTest {
         assertEquals(findUser.getAuthorities(),Arrays.stream(user.getRole().toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList()));
-        assertEquals(true, findUser.isAccountNonExpired());
-        assertEquals(true, findUser.isAccountNonLocked());
-        assertEquals(true, findUser.isCredentialsNonExpired());
-        assertEquals(true, findUser.isEnabled());
+        assertTrue(findUser.isAccountNonExpired());
+        assertTrue(findUser.isAccountNonLocked());
+        assertTrue(findUser.isCredentialsNonExpired());
+        assertTrue(findUser.isEnabled());
         verify(userRepository, times(1)).findByEmail("user@user.com");
     }
 
