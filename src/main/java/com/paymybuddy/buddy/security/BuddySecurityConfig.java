@@ -68,7 +68,7 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user").hasAnyRole("ADMIN", "USER")
                 .antMatchers("/", "/buddy", "/signup",
                         "/update/**", "/delete/**", "/buddyAccountInfo/**",
-                        "/bankAccountInfo/**")
+                        "/bankAccountInfo/**", "/transaction/**")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin();
