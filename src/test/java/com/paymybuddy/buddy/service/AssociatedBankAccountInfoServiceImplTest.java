@@ -4,6 +4,7 @@ import com.paymybuddy.buddy.domain.AssociatedBankAccountInfo;
 import com.paymybuddy.buddy.repository.AssociatedBankAccountInfoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.*;
  * @author Yahia CHERIFI
  */
 
+@Tag("service")
 class AssociatedBankAccountInfoServiceImplTest {
 
     private AssociatedBankAccountInfoServiceImpl service;
