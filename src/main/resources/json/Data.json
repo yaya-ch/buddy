@@ -1,0 +1,76 @@
+//You can persist these users to database in order to perform and test the different operations.
+//Note that the users should be inserted one by one from the http://localhost:8080/signup endpoint
+//Postman is required to insert these users.
+[
+  {
+    "civility" : "SIR",
+    "firstName": "user",
+    "lastName": "user",
+    "email" : "user@user.com",
+    "password": "user123",
+    "birthDate": "1973-01-01",
+    "address": "1 user address",
+    "city": "user city",
+    "zip": "12500",
+    "phone": "0987654321",
+    "role": "ROLE_USER",
+    "contacts": [],
+    "buddyAccountInfo": {
+      "accountBalance": 0.0,
+      "associatedBankAccountInfo": {
+        "bankAccountHolderFirstName": "user",
+        "bankAccountHolderLastName": "user",
+        "iban": "FR7755997654426",
+        "bic": "BANK5654SSSX"
+      }
+    }
+  },
+
+  {
+    "civility" : "MADAM",
+    "firstName": "admin",
+    "lastName": "admin",
+    "email" : "admin@admin.com",
+    "password": "admin123",
+    "birthDate": "1973-12-01",
+    "address": "10 avenue admins",
+    "city": "admin city",
+    "zip": "13544",
+    "phone": "0123456789",
+    "role": "ROLE_ADMIN",
+    "contacts": [],
+    "buddyAccountInfo": {
+      "accountBalance": 0.0,
+      "associatedBankAccountInfo": {
+        "bankAccountHolderFirstName": "admin",
+        "bankAccountHolderLastName": "admin",
+        "iban": "FR7755997659865",
+        "bic": "BANK5654SSSY"
+      }
+    }
+  },
+
+  {
+    "civility" : "MADAM",
+    "firstName": "other",
+    "lastName": "user",
+    "email" : "other@user.com",
+    "password": "other123",
+    "birthDate": "1999-06-06",
+    "address": "10 avenue user",
+    "city": "user city",
+    "zip": "13500",
+    "phone": "0789654321",
+    "role": "ROLE_USER",
+    "contacts": [],
+    "buddyAccountInfo": {
+      "accountBalance": 0.0,
+      "associatedBankAccountInfo": {
+        "bankAccountHolderFirstName": "other",
+        "bankAccountHolderLastName": "user",
+        "iban": "FR7755997654577",
+        "bic": "BANK5654SSSZ"
+      }
+    }
+  }
+]
