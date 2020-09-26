@@ -65,4 +65,12 @@ public class BuddyAccountInfo {
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "buddy_account_info_id")
     private Set<Transaction> transactions;
+
+    /**
+     * Add a new transaction to the list of transactions.
+     * @param transaction the transaction to add
+     */
+    public void addNewTransaction(final Transaction transaction) {
+        transactions.add(transaction);
+    }
 }
