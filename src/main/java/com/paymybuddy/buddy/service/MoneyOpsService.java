@@ -32,4 +32,15 @@ public interface MoneyOpsService {
                           String receiverEmail,
                           Double amount)
             throws MoneyOpsException, ElementNotFoundException;
+
+    /**
+     * This method provides the logic that will.
+     * be used in transferring money to users' bank accounts
+     * @param email the user's email
+     * @param iban the user's bank account iban
+     * @param amount the amount that users want
+     *               to transfer to their bank accounts
+     */
+    void transferMoneyToBankAccount(String email, String iban, Double amount)
+            throws ElementNotFoundException, MoneyOpsException;
 }
