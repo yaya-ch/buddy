@@ -89,4 +89,27 @@ public class MoneyOpsController {
         moneyOpsService.sendMoneyToUsers(senderEmail, receiverEmail, amount);
         return "Money transferred successfully";
     }
+
+    /**
+     * This method allows users to transfer money to their bank accounts.
+     * @param email the user's email
+     * @param iban the user's bank account iban(the associated bank account)
+     * @param amount amount of money a user wants to transfer
+     * @return a success message
+     */
+    @PutMapping("/transferToBank/{email}/{iban}/{amount}")
+    public String transferMoneyToBankAccount(
+            @PathVariable final String email,
+            @PathVariable final String iban,
+            @PathVariable final Double amount)
+            throws ElementNotFoundException, MoneyOpsException {
+        String secureEmail = email
+                .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        String secureIban = iban
+                .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        LOGGER.debug("Transferring {} from {} to bank account {}",
+                amount, secureEmail, secureIban);
+        moneyOpsService.transferMoneyToBankAccount(email, iban, amount);
+        return "Money transferred successfully to your bank account";
+    }
 }
