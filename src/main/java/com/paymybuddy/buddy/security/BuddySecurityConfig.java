@@ -69,7 +69,7 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/buddy", "/signup",
                         "/update/**", "/delete/**", "/buddyAccountInfo/**",
                         "/bankAccountInfo/**", "/transaction/**",
-                        "/operations/**")
+                        "/operations/**", "/actuator/**")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().formLogin();
