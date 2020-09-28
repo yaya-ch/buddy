@@ -2,7 +2,6 @@ package com.paymybuddy.buddy.domain;
 
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,7 +26,6 @@ import java.util.Date;
 
 @Entity
 @Table(name = "transaction")
-@AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @Getter(AccessLevel.PUBLIC)
 @Setter(AccessLevel.PUBLIC)
@@ -79,4 +77,41 @@ public class Transaction {
     @NotNull
     @Column(name = "transaction_status_info", length = LENGTH)
     private TransactionStatusInfo transactionStatusInfo;
+
+    /**
+     * Class constructor.
+     * @param amountOfMoney amount of money
+     * @param date transaction date
+     * @param nature transaction nature
+     * @param transactionStatus transaction status
+     */
+    public Transaction(@NotNull final Double amountOfMoney,
+                       @NotNull final Date date,
+                       @NotNull final TransactionNature nature,
+                       @NotNull final TransactionStatusInfo transactionStatus) {
+        this.amount = amountOfMoney;
+        this.transactionDate = new Date(date.getTime());
+        this.transactionNature = nature;
+        this.transactionStatusInfo = transactionStatus;
+    }
+
+    /**
+     * transactionDate getter.
+     * @return transaction date
+     */
+    public Date getTransactionDate() {
+        if (transactionDate == null) {
+            return null;
+        } else {
+            return new Date(transactionDate.getTime());
+        }
+    }
+
+    /**
+     * transactionDate setter.
+     * @param date transaction date
+     */
+    public void setTransactionDate(final Date date) {
+        this.transactionDate = new Date(date.getTime());
+    }
 }

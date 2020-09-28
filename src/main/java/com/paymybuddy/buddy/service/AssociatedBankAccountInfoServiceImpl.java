@@ -4,6 +4,7 @@ import com.paymybuddy.buddy.domain.AssociatedBankAccountInfo;
 import com.paymybuddy.buddy.repository.AssociatedBankAccountInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -47,6 +48,7 @@ public class AssociatedBankAccountInfoServiceImpl
      * @param bankAccountInfo account to update
      * @return a call to the AssociatedBankAccountInfo repo layer
      */
+    @Transactional
     @Override
     public AssociatedBankAccountInfo updateBankAccountInfo(
             final AssociatedBankAccountInfo bankAccountInfo) {

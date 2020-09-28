@@ -123,11 +123,17 @@ You can find here the different endpoints that support `PUT` operations:
 
 `http://localhost:8080/bankAccountInfo/update/{id}` permits to users to update some bank account information.
 
+`http://localhost:8080/operations/transferToBank/{email}/{iban}/{amount}` 
+permits to users to transfer money from their buddy account to the associated bank account. 
+This feature is only available from the version **1.0.1** on.
+
 **DELETE**
 
 You can find here the different endpoints that support `DELETE` operations:
 
 `http://localhost:8080/delete/{id}` permits user account deletion(id of the user to delete).
+
+The `http://localhost:8080/actuator/info` and `http://localhost:8080/actuator/health` endpoints can be accessed at any time.
 
 # Testing
 

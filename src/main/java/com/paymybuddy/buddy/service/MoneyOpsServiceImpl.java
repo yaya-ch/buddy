@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -90,6 +91,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param email  the user's email
      * @param amount amount of money to deposit
      */
+    @Transactional
     @Override
     public void depositMoneyOnAccount(final String email, final Double amount)
             throws ElementNotFoundException, MoneyOpsException {
@@ -161,6 +163,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param receiverEmail the email of the user who will receive money
      * @param amount        the amount that will be sent
      */
+    @Transactional
     @Override
     public void sendMoneyToUsers(final String senderEmail,
                                  final String receiverEmail,
@@ -181,7 +184,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                                 + " Amount must be greater than 0"
                                 + " and less than or equals to 1000",
                                   amount, secureReceiverEmail);
-                rejectedTransaction(amount, checkForSender);
+                rejectedTransactionBetweenContacts(amount, checkForSender);
                 throw new MoneyOpsException(
                         "Failed to deposit money on account."
                         + " You cannot deposit 0 buddies"
@@ -200,7 +203,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             if ((amount + fee) > senderAccountBalance) {
                 LOGGER.error("Transfer canceled."
                         + " You do not have enough money on your account");
-                rejectedTransaction(amount, checkForSender);
+                rejectedTransactionBetweenContacts(amount, checkForSender);
                 throw new MoneyOpsException(
                         "You cannot transfer money. Insufficient balance");
             }
@@ -246,16 +249,118 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     "There is no matching email addresses."
                     + " Please check your input.");
         }
-
     }
 
     /**
-     * Set a rejected transaction.
-     * @param amount amount of money
-     * @param checkForSender check if a user who sends money exists in db
+     * @param email  the user's email
+     * @param iban   the user's bank account iban
+     * @param amount the amount that users want
      */
-    private void rejectedTransaction(final Double amount,
-                                     final User checkForSender) {
+    @Transactional
+    @Override
+    public void transferMoneyToBankAccount(
+            final String email,
+            final String iban,
+            final Double amount)
+            throws ElementNotFoundException, MoneyOpsException {
+        String secureEmail = email
+                .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        String secureIban = iban
+                .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+
+        //******CHECK IF THE PROVIDED EMAIL EXISTS IN DB************
+        User checkForExistingUser = userRepository.findByEmail(email);
+        if (checkForExistingUser != null) {
+            //******GET THE USER'S ID************
+            Integer userId = checkForExistingUser.getUserId();
+            //******GET THE USER'S IBAN************
+            String userIban = checkForExistingUser
+                    .getBuddyAccountInfo()
+                    .getAssociatedBankAccountInfo().getIban();
+            //******CHECK IF THE USER'S IBAN IS CORRECT************
+            if (!iban.equals(userIban)) {
+                LOGGER.error("Transferring canceled. "
+                     + "{} tried to transfer money to an other bank account {}",
+                     secureEmail, secureIban);
+                //******CREATE A NEW REJECTED TRANSACTION************
+                rejectTransactionBetweenAccounts(amount, checkForExistingUser);
+                throw new MoneyOpsException(
+                       "The provided iban is different from the one"
+                       + " associated to your account. Failed to transfer money"
+                       + " to other bank account.");
+            }
+
+            //******CALCULATE FEE************
+            Double fee = monetizingService.transactionFee(amount);
+            //******GET THE USER ACCOUNT BALANCE************
+            Double currentAccountBalance = checkForExistingUser
+                    .getBuddyAccountInfo().getAccountBalance();
+            //******CHECK IF THE USER HAS ENOUGH MONEY************
+            if ((fee + amount) > currentAccountBalance) {
+                LOGGER.error("Failed to transfer money from {} to bank account."
+                                + " {}", secureEmail, secureIban);
+                //******CREATE A NEW REJECTED TRANSACTION************
+                rejectTransactionBetweenAccounts(amount, checkForExistingUser);
+                throw new MoneyOpsException(
+                        "Failed to transfer money to your bank account."
+                        + " You do not have enough money.");
+            }
+
+            Double updateUserAccountBalance =
+                    currentAccountBalance - (amount - fee);
+            //******CREATE A NEW ACCEPTED TRANSACTION************
+            Transaction transaction = new Transaction();
+            transaction.setTransactionDate(new Date());
+            transaction.setAmount(amount);
+            transaction.setTransactionNature(
+                    TransactionNature.BETWEEN_ACCOUNTS);
+            transaction.setTransactionStatusInfo(
+                    TransactionStatusInfo.TRANSACTION_ACCEPTED);
+            checkForExistingUser.getBuddyAccountInfo()
+                    .addNewTransaction(transaction);
+
+            //******UPDATE THE USER'S ACCOUNT BALANCE**********
+            LOGGER.info("Money transferred successfully from"
+                    + " {} to bank account {}", secureEmail, secureIban);
+            buddyAccountInfoRepository
+                    .updateBalance(userId, updateUserAccountBalance);
+
+        } else {
+            LOGGER.error("Failed to transfer money."
+                    + " There is no matching email found");
+            throw new ElementNotFoundException(
+                    "There is no matching email addresses."
+                    + " Please check your input.");
+        }
+    }
+
+    /**
+     * Set a rejected transaction for operations between accounts.
+     * @param amount amount of money
+     * @param checkForExistingUser the user to whom the
+     *                             transaction will be added
+     */
+    private void rejectTransactionBetweenAccounts(final Double amount,
+                                              final User checkForExistingUser) {
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(new Date());
+        transaction.setAmount(amount);
+        transaction.setTransactionNature(
+                TransactionNature.BETWEEN_ACCOUNTS);
+        transaction.setTransactionStatusInfo(
+                TransactionStatusInfo.TRANSACTION_REJECTED);
+        checkForExistingUser.getBuddyAccountInfo()
+                .addNewTransaction(transaction);
+        transactionRepository.save(transaction);
+    }
+
+    /**
+     * Set a rejected transaction for operations between accounts.
+     * @param amount amount of money
+     * @param checkForSender the user to whom the transaction will be added
+     */
+    private void rejectedTransactionBetweenContacts(final Double amount,
+                                                    final User checkForSender) {
         Transaction transaction = new Transaction();
         transaction.setTransactionDate(new Date());
         transaction.setAmount(amount);

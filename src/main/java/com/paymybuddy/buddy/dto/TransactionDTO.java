@@ -48,4 +48,24 @@ public class TransactionDTO {
     @NotNull
     @NotBlank
     private String transactionStatusInfo;
+
+    /**
+     * transactionDate getter.
+     * @return transactionDate
+     */
+    public Date getTransactionDate() {
+        if (transactionDate == null) {
+            return null;
+        } else {
+            return new Date(transactionDate.getTime());
+        }
+    }
+
+    /**
+     * transactionDate setter.
+     * @param date transactionDate
+     */
+    public void setTransactionDate(final Date date) {
+        this.transactionDate = new Date(date.getTime());
+    }
 }
