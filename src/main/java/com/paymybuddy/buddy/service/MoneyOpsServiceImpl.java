@@ -13,6 +13,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -90,6 +91,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param email  the user's email
      * @param amount amount of money to deposit
      */
+    @Transactional
     @Override
     public void depositMoneyOnAccount(final String email, final Double amount)
             throws ElementNotFoundException, MoneyOpsException {
@@ -161,6 +163,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param receiverEmail the email of the user who will receive money
      * @param amount        the amount that will be sent
      */
+    @Transactional
     @Override
     public void sendMoneyToUsers(final String senderEmail,
                                  final String receiverEmail,
@@ -253,6 +256,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param iban   the user's bank account iban
      * @param amount the amount that users want
      */
+    @Transactional
     @Override
     public void transferMoneyToBankAccount(
             final String email,

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -61,6 +62,7 @@ public class UserServiceImpl implements UserService {
      * @param user to be saved
      * @return a call to the userRepository method save
      */
+    @Transactional
     @Override
     public User save(final User user) {
         User checkForExistingUser =
@@ -79,6 +81,7 @@ public class UserServiceImpl implements UserService {
     /**
      * @param userToUpdate the new user's PII
      */
+    @Transactional
     @Override
     public User updateUser(final User userToUpdate) {
         return userRepository.save(userToUpdate);
