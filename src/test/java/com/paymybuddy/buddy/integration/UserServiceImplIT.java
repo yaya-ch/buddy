@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -90,6 +91,7 @@ public class UserServiceImplIT {
     }
 
     @DisplayName("Existing email returns correct user")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenCorrectEmailAddress_whenFindByEmailIsCalled_thenCorrectUserShouldBeReturned() {
         User persist = repository.save(setUser());
@@ -100,6 +102,7 @@ public class UserServiceImplIT {
     }
 
     @DisplayName("Correct id return correct user")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenCorrectUserId_whenFindByIdIsCalled_thenCorrectUserShouldBeReturned() {
         User persist = repository.save(setUser());
@@ -117,6 +120,7 @@ public class UserServiceImplIT {
     }
 
     @DisplayName("Correct id delete correct user")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenCorrectUserId_whenDeleteByIdIsCalled_thenUserShouldBeDeleted() {
         userService.save(setUser());

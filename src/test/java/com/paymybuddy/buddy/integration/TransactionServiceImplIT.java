@@ -19,6 +19,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -92,6 +93,8 @@ public class TransactionServiceImplIT {
     private Transaction setTransaction() {
         transaction = new Transaction();
         transaction.setTransactionId(1);
+        transaction.setSender("IBANIBAN123IBAN");
+        transaction.setRecipient("user@user.com");
         transaction.setTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_ACCEPTED);
         transaction.setAmount(10.0);
         transaction.setTransactionNature(TransactionNature.TO_CONTACTS);
@@ -107,10 +110,11 @@ public class TransactionServiceImplIT {
     }
 
     @DisplayName("Existing user id return a list of available transactions")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenExistingUserId_whenFindUserTransactions_thenListShouldBeReturned()
             throws ElementNotFoundException {
-        User persist = userService.save(setUser());
+        userService.save(setUser());
         List<TransactionDTO> transactions = transactionService.findUserTransactions(1);
         assertEquals(1, transactions.size());
     }

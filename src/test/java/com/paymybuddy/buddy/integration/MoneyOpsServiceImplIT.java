@@ -20,6 +20,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -80,7 +81,7 @@ public class MoneyOpsServiceImplIT {
         buddyAccountInfo = new BuddyAccountInfo();
         buddyAccountInfo.setBuddyAccountInfoId(1);
         buddyAccountInfo.setAccountBalance(100.0);
-        transactions.add(setTransaction());
+        //transactions.add(setTransaction());
         buddyAccountInfo.setTransactions(transactions);
         buddyAccountInfo.setAssociatedBankAccountInfo(setAssociatedBankAccountInfo());
         return buddyAccountInfo;
@@ -110,23 +111,25 @@ public class MoneyOpsServiceImplIT {
     @Test
     public void givenNonExistingUserEmail_whenDepositMoneyOnAccountsCalled_thenExceptionShouldBeThrown() {
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .depositMoneyOnAccount("wrong@email.com", 100.0));
+                .depositMoneyOnBuddyAccount("wrong@email.com", "IBANIBAN123456", 100.0));
     }
 
     @DisplayName("Depositing money on account fails when amount equals to 0 or higher than 1000")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenZeroOrMoreThanOneThousand_whenDepositMoneyOnAccountsCalled_thenExceptionShouldBeThrown() {
         userService.save(setUser());
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .depositMoneyOnAccount("user@user.com", 1000.1));
+                .depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123456", 1000.1));
     }
 
     @DisplayName("Existing user id return a list of available transactions")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenExistingUserEmail_whenDepositMoneyOnAccountsCalled_thenAccountCredited()
             throws ElementNotFoundException, MoneyOpsException {
         userService.save(setUser());
-        moneyOpsService.depositMoneyOnAccount("user@user.com", 100.0);
+        moneyOpsService.depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123IBAN", 100.0);
         User find = userService.findByEmail("user@user.com");
         Integer id = find.getUserId();
         Double balance = find.getBuddyAccountInfo().getAccountBalance();

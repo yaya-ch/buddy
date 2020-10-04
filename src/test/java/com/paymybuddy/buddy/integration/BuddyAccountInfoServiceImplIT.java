@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashSet;
@@ -58,6 +59,7 @@ public class BuddyAccountInfoServiceImplIT {
     }
 
     @DisplayName("Correct BuddyAccountInfo id returns the accountInfo")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
     @Test
     public void givenExistingBuddyAccountId_whenFindByIdIsCalled_thenCorrectDataShouldBeReturned() {
         repository.save(setBuddyAccountInfo());

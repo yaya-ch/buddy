@@ -56,38 +56,24 @@ public class MoneyOpsController {
     /**
      * This method allows to users to deposit money on their buddy accounts.
      * @param email the user's email address
+     * @param iban the associated bank account's iban
      * @param amount the amount to be deposited
      * @return success message
      * @throws ElementNotFoundException if no email was found
      */
-    @PutMapping("/deposit/{email}/{amount}")
+    @PutMapping("/deposit/{email}/{iban}/{amount}")
     public String depositMoneyOnAccount(@PathVariable final String email,
+                                        @PathVariable final String iban,
                                         @PathVariable final Double amount)
             throws ElementNotFoundException, MoneyOpsException {
         String secureEmail = email.replaceAll(DANGEROUS_CHARACTERS,
                 REPLACEMENT_CHARACTER);
-        LOGGER.debug("Request to deposit {} on account {} ",
-                secureEmail, amount);
-        moneyOpsService.depositMoneyOnAccount(email, amount);
+        String secureIban = iban.replaceAll(DANGEROUS_CHARACTERS,
+                REPLACEMENT_CHARACTER);
+        LOGGER.debug("Request to deposit {} on account {} from {}",
+                amount, secureEmail, secureIban);
+        moneyOpsService.depositMoneyOnBuddyAccount(secureEmail, secureIban, amount);
         return "Your account has been credited successfully";
-    }
-
-    /**
-     * This method allows users to transfer money to other users.
-     * @param senderEmail the email of the user who wants to send money
-     * @param receiverEmail the email of the user who will receive money
-     * @param amount the amount to be sent
-     * @return success message
-     */
-    @PutMapping("/transfer/{senderEmail}/{receiverEmail}/{amount}")
-    public String transferMoneyToUsers(@PathVariable final String senderEmail,
-                                       @PathVariable final String receiverEmail,
-                                       @PathVariable final Double amount)
-            throws MoneyOpsException, ElementNotFoundException {
-        LOGGER.debug("Transferring {} from {} to {}",
-                amount, senderEmail, receiverEmail);
-        moneyOpsService.sendMoneyToUsers(senderEmail, receiverEmail, amount);
-        return "Money transferred successfully";
     }
 
     /**
@@ -109,7 +95,31 @@ public class MoneyOpsController {
                 .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
         LOGGER.debug("Transferring {} from {} to bank account {}",
                 amount, secureEmail, secureIban);
-        moneyOpsService.transferMoneyToBankAccount(email, iban, amount);
+        moneyOpsService.transferMoneyToBankAccount(
+                secureEmail, secureIban, amount);
         return "Money transferred successfully to your bank account";
+    }
+
+    /**
+     * This method allows users to transfer money to other users.
+     * @param senderEmail the email of the user who wants to send money
+     * @param receiverEmail the email of the user who will receive money
+     * @param amount the amount to be sent
+     * @return success message
+     */
+    @PutMapping("/transfer/{senderEmail}/{receiverEmail}/{amount}")
+    public String transferMoneyToUsers(@PathVariable final String senderEmail,
+                                       @PathVariable final String receiverEmail,
+                                       @PathVariable final Double amount)
+            throws MoneyOpsException, ElementNotFoundException {
+        String secureSenderEmail = senderEmail.replaceAll(DANGEROUS_CHARACTERS,
+                REPLACEMENT_CHARACTER);
+        String secureReceiverEmail = receiverEmail
+                .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        LOGGER.debug("Transferring {} from {} to {}",
+                amount, secureSenderEmail, secureReceiverEmail);
+        moneyOpsService.sendMoneyToUsers(
+                secureSenderEmail, secureReceiverEmail, amount);
+        return "Money transferred successfully";
     }
 }

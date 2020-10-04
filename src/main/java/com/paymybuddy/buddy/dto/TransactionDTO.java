@@ -19,6 +19,13 @@ import java.util.Date;
 @Setter(AccessLevel.PUBLIC)
 public class TransactionDTO {
 
+    @NotNull
+    @NotBlank
+    private String sender;
+
+    @NotNull
+    @NotBlank
+    private String recipient;
     /**
      * The amount transferred.
      */

@@ -47,11 +47,11 @@ class MoneyOpsControllerTest {
     @Test
     void depositMoneyOnAccount_shouldReturnCorrectMessage() throws Exception {
         String message = "Your account has been credited successfully";
-        mockMvc.perform(MockMvcRequestBuilders.put("/operations/deposit/email@email.com/10.1"))
+        mockMvc.perform(MockMvcRequestBuilders.put("/operations/deposit/email@email.com/IBANIBAN123456/10.1"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
         verify(moneyOpsService, times(1))
-                .depositMoneyOnAccount("email@email.com", 10.1);
+                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456", 10.1);
     }
 
     @DisplayName("transferMoneyToUsers returns correct message and calls correct service method")
