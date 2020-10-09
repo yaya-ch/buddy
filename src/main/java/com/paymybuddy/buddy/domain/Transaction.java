@@ -1,6 +1,7 @@
 package com.paymybuddy.buddy.domain;
 
 import com.paymybuddy.buddy.enums.TransactionNature;
+import com.paymybuddy.buddy.enums.TransactionProperty;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -38,6 +39,11 @@ public class Transaction {
     private static final int LENGTH = 25;
 
     /**
+     * The maximum number of characters allowed in sender/recipient.
+     */
+    private static final int MAX_LENGTH = 45;
+
+    /**
      * The transaction id.
      * automatically generated. auto incremented
      */
@@ -45,6 +51,20 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
     private Integer transactionId;
+
+    /**
+     * The user who sends money.
+     */
+    @NotNull
+    @Column(name = "sender", length = MAX_LENGTH)
+    private String sender;
+
+    /**
+     * The user who receives money.
+     */
+    @NotNull
+    @Column(name = "recipient", length = MAX_LENGTH)
+    private String recipient;
 
     /**
      * The amount transferred.
@@ -79,20 +99,38 @@ public class Transaction {
     private TransactionStatusInfo transactionStatusInfo;
 
     /**
+     * Additional information about transactions.
+     * SENT, RECEIVED, SENDING_FAILED, DEPOSITING_FAILED
+     */
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(name = "transaction_property", length = LENGTH)
+    private TransactionProperty transactionProperty;
+
+    /**
      * Class constructor.
+     * @param moneySender the source of the transaction
+     * @param moneyRecipient the user who receives money
      * @param amountOfMoney amount of money
      * @param date transaction date
      * @param nature transaction nature
      * @param transactionStatus transaction status
+     * @param property transaction property
      */
-    public Transaction(@NotNull final Double amountOfMoney,
+    public Transaction(@NotNull final String moneySender,
+                       @NotNull final String moneyRecipient,
+                       @NotNull final Double amountOfMoney,
                        @NotNull final Date date,
                        @NotNull final TransactionNature nature,
-                       @NotNull final TransactionStatusInfo transactionStatus) {
+                       @NotNull final TransactionStatusInfo transactionStatus,
+                       @NotNull final TransactionProperty property) {
+        this.sender = moneySender;
+        this.recipient = moneyRecipient;
         this.amount = amountOfMoney;
         this.transactionDate = new Date(date.getTime());
         this.transactionNature = nature;
         this.transactionStatusInfo = transactionStatus;
+        this.transactionProperty = property;
     }
 
     /**
