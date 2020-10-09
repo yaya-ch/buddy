@@ -3,6 +3,7 @@ package com.paymybuddy.buddy.service;
 import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.enums.TransactionNature;
+import com.paymybuddy.buddy.enums.TransactionProperty;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
 import com.paymybuddy.buddy.exceptions.MoneyOpsException;
@@ -141,6 +142,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     TransactionNature.BETWEEN_ACCOUNTS);
             transaction.setTransactionStatusInfo(
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
+            transaction.setTransactionProperty(TransactionProperty.RECEIVED);
             //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
             checkForExistingUser.getBuddyAccountInfo()
                     .addNewTransaction(transaction);
@@ -182,14 +184,15 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             //******CHECK IF THE USER'S IBAN IS CORRECT************
             if (!iban.equals(userIban)) {
                 LOGGER.error("Transferring canceled. "
-                                + "{} tried to transfer money to an other bank account {}",
-                        email, iban);
+                            + "{} tried to transfer money to an other"
+                            + " bank account {}", email, iban);
                 //******CREATE A NEW REJECTED TRANSACTION************
                 rejectTransactionFromBuddyAccountToBankAccount(
                         amount, iban, checkForExistingUser);
                 throw new MoneyOpsException(
                         "The provided iban is different from the one"
-                                + " associated to your account. Failed to transfer money"
+                                + " associated to your account."
+                                + " Failed to transfer money"
                                 + " to other bank account.");
             }
 
@@ -222,6 +225,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     TransactionNature.BETWEEN_ACCOUNTS);
             transaction.setTransactionStatusInfo(
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
+            transaction.setTransactionProperty(TransactionProperty.SENT);
             checkForExistingUser.getBuddyAccountInfo()
                     .addNewTransaction(transaction);
 
@@ -291,7 +295,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     senderAccountBalance - amount - fee;
             //CREATE A NEW ACCEPTED TRANSACTION FOR THE SENDER
             acceptedTransactionBetweenContacts(
-                    senderEmail, receiverEmail, amount, checkForSender);
+                    senderEmail, receiverEmail, amount,
+                    checkForSender, TransactionProperty.SENT);
             //UPDATE THE SENDER'S ACCOUNT BALANCE
             buddyAccountInfoRepository.updateBalance(
                     senderId, updatedSenderAccountBalance);
@@ -302,7 +307,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     receiverAccountBalance + amount;
             //CREATE A NEW ACCEPTED TRANSACTION FOR RECEIVER
             acceptedTransactionBetweenContacts(
-                    senderEmail, receiverEmail, amount, checkForReceiver);
+                    senderEmail, receiverEmail, amount,
+                    checkForReceiver, TransactionProperty.RECEIVED);
             //UPDATE THE RECEIVER'S ACCOUNT BALANCE
             buddyAccountInfoRepository
                     .updateBalance(receiverId, updatedReceiverAccountBalance);
@@ -337,6 +343,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.BETWEEN_ACCOUNTS);
         transaction.setTransactionStatusInfo(
                 TransactionStatusInfo.TRANSACTION_REJECTED);
+        transaction.setTransactionProperty(
+                TransactionProperty.DEPOSITING_FAILED);
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
         transactionRepository.save(transaction);
@@ -362,6 +370,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.BETWEEN_ACCOUNTS);
         transaction.setTransactionStatusInfo(
                 TransactionStatusInfo.TRANSACTION_REJECTED);
+        transaction.setTransactionProperty(TransactionProperty.SENDING_FAILED);
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
         transactionRepository.save(transaction);
@@ -374,11 +383,14 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param amount amount of money sent/received
      * @param user the user to whom the transaction will be added
      *             (sender and receiver)
+     * @param transactionProperty transaction property
      */
-    private void acceptedTransactionBetweenContacts(final String senderEmail,
-                                                    final String receiverEmail,
-                                                    final Double amount,
-                                                    final User user) {
+    private void acceptedTransactionBetweenContacts(
+            final String senderEmail,
+            final String receiverEmail,
+            final Double amount,
+            final User user,
+            final TransactionProperty transactionProperty) {
         Transaction transaction = new Transaction();
         transaction.setSender(senderEmail);
         transaction.setRecipient(receiverEmail);
@@ -388,6 +400,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.TO_CONTACTS);
         transaction.setTransactionStatusInfo(
                 TransactionStatusInfo.TRANSACTION_ACCEPTED);
+        transaction.setTransactionProperty(transactionProperty);
         //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
@@ -411,6 +424,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.TO_CONTACTS);
         transaction.setTransactionStatusInfo(
                 TransactionStatusInfo.TRANSACTION_REJECTED);
+        transaction.setTransactionProperty(TransactionProperty.SENDING_FAILED);
         sender.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
         transactionRepository.save(transaction);

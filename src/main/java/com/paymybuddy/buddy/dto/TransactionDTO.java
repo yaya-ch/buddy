@@ -19,10 +19,16 @@ import java.util.Date;
 @Setter(AccessLevel.PUBLIC)
 public class TransactionDTO {
 
+    /**
+     * The email or iban of the money sender.
+     */
     @NotNull
     @NotBlank
     private String sender;
 
+    /**
+     * The email or iban of the money receiver.
+     */
     @NotNull
     @NotBlank
     private String recipient;
@@ -55,6 +61,14 @@ public class TransactionDTO {
     @NotNull
     @NotBlank
     private String transactionStatusInfo;
+
+    /**
+     * transaction property: sent, received,
+     * sending failed or depositing failed.
+     */
+    @NotNull
+    @NotBlank
+    private String transactionProperty;
 
     /**
      * transactionDate getter.
