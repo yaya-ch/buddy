@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -172,7 +173,7 @@ class UserControllerTest {
         UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
         UserDTO userDTO = new UserDTO();
         when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
-        assertThrows(UsernameNotFoundException.class, () -> controller.updateUser(userDTO, 1));
+        assertThrows(BadCredentialsException.class, () -> controller.updateUser(userDTO, 1));
     }
 
     @DisplayName("Delete an existing user successfully")
@@ -188,6 +189,6 @@ class UserControllerTest {
     void givenNonExistingUser_whenDeleteUserIsCalled_thenExceptionShouldBeThrown() {
         UserController controller = new UserController(userService, userConverter, passwordEncoder, mapper);
         when(userService.findById(anyInt())).thenReturn(Optional.ofNullable(user));
-        assertThrows(UsernameNotFoundException.class, () -> controller.deleteUserById(1));
+        assertThrows(BadCredentialsException.class, () -> controller.deleteUserById(1));
     }
 }
