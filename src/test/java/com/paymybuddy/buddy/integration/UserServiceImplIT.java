@@ -41,9 +41,9 @@ public class UserServiceImplIT {
     @Test
     public void givenCorrectEmailAddress_whenFindByEmailIsCalled_thenCorrectUserShouldBeReturned() {
         User findUser = userService.findByEmail("user@user.com");
-        assertEquals(findUser.getEmail(), "user@user.com");
-        assertEquals(findUser.getLastName(), "user");
-        assertEquals(findUser.getFirstName(), "user");
+        assertEquals("user@user.com", findUser.getEmail());
+        assertEquals("user", findUser.getLastName());
+        assertEquals("user", findUser.getFirstName());
     }
 
     @DisplayName("Correct id return correct user")
@@ -53,9 +53,9 @@ public class UserServiceImplIT {
     public void givenCorrectUserId_whenFindByIdIsCalled_thenCorrectUserShouldBeReturned() {
         Optional<User> findUser = userService.findById(1);
         assertTrue(findUser.isPresent());
-        assertEquals(findUser.get().getEmail(), "user@user.com");
-        assertEquals(findUser.get().getLastName(), "user");
-        assertEquals(findUser.get().getFirstName(), "user");
+        assertEquals("user@user.com", findUser.get().getEmail());
+        assertEquals("user", findUser.get().getLastName());
+        assertEquals("user", findUser.get().getFirstName());
     }
 
     @DisplayName("Incorrect id return correct null")
