@@ -15,10 +15,24 @@ public interface MoneyOpsService {
      * This method provides the logic that will.
      * be used when depositing money on the buddy account
      * @param email the user's email
+     * @param iban the associated bank account's iban
      * @param amount amount of money to deposit
      * @return
      */
-    void depositMoneyOnAccount(String email, Double amount)
+    void depositMoneyOnBuddyAccount(String email,
+                                    String iban,
+                                    Double amount)
+            throws ElementNotFoundException, MoneyOpsException;
+
+    /**
+     * This method provides the logic that will.
+     * be used in transferring money to users' bank accounts
+     * @param email the user's email
+     * @param iban the user's bank account iban
+     * @param amount the amount that users want
+     *               to transfer to their bank accounts
+     */
+    void transferMoneyToBankAccount(String email, String iban, Double amount)
             throws ElementNotFoundException, MoneyOpsException;
 
     /**
@@ -32,15 +46,4 @@ public interface MoneyOpsService {
                           String receiverEmail,
                           Double amount)
             throws MoneyOpsException, ElementNotFoundException;
-
-    /**
-     * This method provides the logic that will.
-     * be used in transferring money to users' bank accounts
-     * @param email the user's email
-     * @param iban the user's bank account iban
-     * @param amount the amount that users want
-     *               to transfer to their bank accounts
-     */
-    void transferMoneyToBankAccount(String email, String iban, Double amount)
-            throws ElementNotFoundException, MoneyOpsException;
 }
