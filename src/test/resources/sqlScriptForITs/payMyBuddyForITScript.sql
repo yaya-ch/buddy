@@ -61,12 +61,12 @@ DROP TABLE IF EXISTS transaction;
 CREATE TABLE transaction(
     transaction_id INT NOT NULL AUTO_INCREMENT,
     amount DOUBLE,
+    fee DOUBLE,
     recipient VARCHAR,
     sender VARCHAR,
     transaction_date VARCHAR,
     transaction_nature VARCHAR,
     transaction_status_info VARCHAR,
-    transaction_property VARCHAR,
     buddy_account_info_id INT,
     PRIMARY KEY (transaction_id),
     FOREIGN KEY (buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)

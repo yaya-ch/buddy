@@ -40,6 +40,12 @@ public class TransactionDTO {
     private Double amount;
 
     /**
+     * The that will be paid by the user who sends money.
+     * Used mainly for monetizing the application
+     */
+    private Double fee;
+
+    /**
      * The transaction date.
      */
     @NotNull
@@ -61,14 +67,6 @@ public class TransactionDTO {
     @NotNull
     @NotBlank
     private String transactionStatusInfo;
-
-    /**
-     * transaction property: sent, received,
-     * sending failed or depositing failed.
-     */
-    @NotNull
-    @NotBlank
-    private String transactionProperty;
 
     /**
      * transactionDate getter.

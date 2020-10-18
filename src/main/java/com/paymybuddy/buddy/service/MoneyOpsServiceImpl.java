@@ -3,7 +3,6 @@ package com.paymybuddy.buddy.service;
 import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.enums.TransactionNature;
-import com.paymybuddy.buddy.enums.TransactionProperty;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
 import com.paymybuddy.buddy.exceptions.MoneyOpsException;
@@ -100,8 +99,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                         + " Bank account is different from the associated one",
                         amount, email, iban);
                 //CREATE A NEW REJECTED TRANSACTION
-                rejectTransactionFromBankAccountToBuddyAccount(
-                        amount, iban, checkForExistingUser);
+                transactionsBetweenBuddyAccountAndBankAccount(
+                        checkForExistingUser, iban, amount, null,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException("Failed"
                         + " to transfer money from the provided bank account."
                         + " You can only transfer money from"
@@ -114,8 +114,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                         + " and less than or equals to 1000",
                         email);
                 //CREATE A NEW REJECTED TRANSACTION
-                rejectTransactionFromBankAccountToBuddyAccount(
-                        amount, iban, checkForExistingUser);
+                transactionsBetweenBuddyAccountAndBankAccount(
+                        checkForExistingUser, iban, amount, null,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 LOGGER.error("Failed to deposit money on {}."
                         + " The provided amount '{}' does not meet"
                         + " the requirements", email, amount);
@@ -135,19 +136,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Double updatedActualAccountBalance =
                     getActualAccountBalance + (amount - fee);
             //CREATE A NEW ACCEPTED TRANSACTION
-            Transaction transaction = new Transaction();
-            transaction.setSender(iban);
-            transaction.setRecipient(checkForExistingUser.getEmail());
-            transaction.setTransactionDate(new Date());
-            transaction.setAmount(amount);
-            transaction.setTransactionNature(
-                    TransactionNature.BETWEEN_ACCOUNTS);
-            transaction.setTransactionStatusInfo(
+            transactionsBetweenBuddyAccountAndBankAccount(
+                    checkForExistingUser, iban, amount, fee,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
-            transaction.setTransactionProperty(TransactionProperty.RECEIVED);
-            //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
-            checkForExistingUser.getBuddyAccountInfo()
-                    .addNewTransaction(transaction);
             //UPDATE THE ACTUAL BUDDY ACCOUNT BALANCE
             buddyAccountInfoRepository.updateActualAccountBalance(
                     id, updatedActualAccountBalance);
@@ -193,8 +184,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                             + "{} tried to transfer money to an other"
                             + " bank account {}", email, iban);
                 //******CREATE A NEW REJECTED TRANSACTION************
-                rejectTransactionFromBuddyAccountToBankAccount(
-                        amount, iban, checkForExistingUser);
+                transactionsBetweenBuddyAccountAndBankAccount(
+                        checkForExistingUser, iban, amount, null,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "The provided iban is different from the one"
                                 + " associated to your account."
@@ -212,8 +204,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 LOGGER.error("Failed to transfer money from {} to bank account."
                         + " {}", email, iban);
                 //******CREATE A NEW REJECTED TRANSACTION************
-                rejectTransactionFromBuddyAccountToBankAccount(
-                        amount, iban, checkForExistingUser);
+                transactionsBetweenBuddyAccountAndBankAccount(
+                        checkForExistingUser, iban, amount, null,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "Failed to transfer money to your bank account."
                                 + " You do not have enough money.");
@@ -221,18 +214,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Double updateUserAccountBalance =
                     currentAccountBalance - (amount - fee);
             //******CREATE A NEW ACCEPTED TRANSACTION************
-            Transaction transaction = new Transaction();
-            transaction.setSender(email);
-            transaction.setRecipient(iban);
-            transaction.setTransactionDate(new Date());
-            transaction.setAmount(amount);
-            transaction.setTransactionNature(
-                    TransactionNature.BETWEEN_ACCOUNTS);
-            transaction.setTransactionStatusInfo(
+            transactionsBetweenBuddyAccountAndBankAccount(
+                    checkForExistingUser, iban, amount, fee,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
-            transaction.setTransactionProperty(TransactionProperty.SENT);
-            checkForExistingUser.getBuddyAccountInfo()
-                    .addNewTransaction(transaction);
 
             //******UPDATE THE USER'S ACCOUNT BALANCE**********
             LOGGER.info("Money transferred successfully from"
@@ -274,8 +258,10 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                                 + " Amount must be greater than 0"
                                 + " and less than or equals to 1000",
                                   amount, recipientEmail);
-                rejectedTransactionBetweenContacts(
-                        amount, recipientEmail, checkForSender);
+                //CREATE A NEW REJECTED TRANSACTION
+                transactionsBetweenContacts(
+                        checkForSender, senderEmail, recipientEmail, amount,
+                        null, TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "Failed to deposit money on account."
                         + " You cannot deposit 0 buddies"
@@ -296,8 +282,10 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             if ((amount + fee) > senderActualAccountBalance) {
                 LOGGER.error("Transfer canceled."
                         + " You do not have enough money on your account");
-                rejectedTransactionBetweenContacts(
-                        amount, recipientEmail, checkForSender);
+                //CREATE A NEW REJECTED TRANSACTION
+                transactionsBetweenContacts(
+                        checkForSender, senderEmail, recipientEmail, amount,
+                        null, TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "You cannot transfer money. Insufficient balance");
             }
@@ -305,9 +293,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Double updatedSenderAccountBalance =
                     senderActualAccountBalance - amount - fee;
             //CREATE A NEW ACCEPTED TRANSACTION FOR THE SENDER
-            acceptedTransactionBetweenContacts(
-                    senderEmail, recipientEmail, amount,
-                    checkForSender, TransactionProperty.SENT);
+            transactionsBetweenContacts(
+                    checkForSender, senderEmail, recipientEmail, amount, fee,
+                    TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE SENDER'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository.updateActualAccountBalance(
                     senderId, updatedSenderAccountBalance);
@@ -321,9 +309,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Double updatedRecipientAccountBalance =
                     recipientActualAccountBalance + amount;
             //CREATE A NEW ACCEPTED TRANSACTION FOR RECIPIENT
-            acceptedTransactionBetweenContacts(
-                    senderEmail, recipientEmail, amount,
-                    checkForRecipient, TransactionProperty.RECEIVED);
+            transactionsBetweenContacts(
+                    checkForRecipient, senderEmail, recipientEmail,
+                    amount, null, TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE RECIPIENT'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository
                     .updateActualAccountBalance(
@@ -345,108 +333,62 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
-     * Set a rejected transaction for operations.
-     * that come from bank to buddy account
-     * @param amount amount of money
-     * @param sender the user who sent money
+     *
      * @param user the user to whom the
-     *                             transaction will be added
-     */
-    private void rejectTransactionFromBankAccountToBuddyAccount(
-            final Double amount, final String sender, final User user) {
-        Transaction transaction = new Transaction();
-        transaction.setSender(sender);
-        transaction.setRecipient(user.getEmail());
-        transaction.setTransactionDate(new Date());
-        transaction.setAmount(amount);
-        transaction.setTransactionNature(
-                TransactionNature.BETWEEN_ACCOUNTS);
-        transaction.setTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_REJECTED);
-        transaction.setTransactionProperty(
-                TransactionProperty.DEPOSITING_FAILED);
-        user.getBuddyAccountInfo()
-                .addNewTransaction(transaction);
-        transactionRepository.save(transaction);
-    }
-
-    /**
-     * Set a rejected transaction for operations.
-     * that come from buddy to bank account
-     * @param amount amount of money
+     *             transaction will be added
      * @param iban the associated bank account's iban
-     *             to which the money will be transferred
-     * @param user the user to whom the
-     *                             transaction will be added
+     *             from/to which the money will be transferred
+     * @param amount amount of money that will be sent
+     * @param fee the fee that will be paid by the user
+     *            who sends money
+     * @param transactionStatusInfo the status of the transaction
      */
-    private void rejectTransactionFromBuddyAccountToBankAccount(
-            final Double amount, final String iban, final User user) {
+    private void transactionsBetweenBuddyAccountAndBankAccount(
+            final User user, final String iban,
+            final Double amount, final Double fee,
+            final TransactionStatusInfo transactionStatusInfo) {
         Transaction transaction = new Transaction();
         transaction.setSender(user.getEmail());
         transaction.setRecipient(iban);
         transaction.setTransactionDate(new Date());
         transaction.setAmount(amount);
+        transaction.setFee(fee);
         transaction.setTransactionNature(
                 TransactionNature.BETWEEN_ACCOUNTS);
-        transaction.setTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_REJECTED);
-        transaction.setTransactionProperty(TransactionProperty.SENDING_FAILED);
+        transaction.setTransactionStatusInfo(transactionStatusInfo);
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
         transactionRepository.save(transaction);
     }
 
     /**
-     * Set an accepted transaction for operations between contacts.
+     * Set a new transaction for operations between contacts.
+     * @param user the user to whom the transaction will be added
+     *             (sender and recipient)
      * @param senderEmail the sender's email address
      * @param recipientEmail the receiver's email address
      * @param amount amount of money sent/received
-     * @param user the user to whom the transaction will be added
-     *             (sender and recipient)
-     * @param transactionProperty transaction property
+     * @param fee the fee that will be paid by the user
+     * @param transactionStatusInfo the transaction status
      */
-    private void acceptedTransactionBetweenContacts(
+    private void transactionsBetweenContacts(
+            final User user,
             final String senderEmail,
             final String recipientEmail,
             final Double amount,
-            final User user,
-            final TransactionProperty transactionProperty) {
+            final Double fee,
+            final TransactionStatusInfo transactionStatusInfo) {
         Transaction transaction = new Transaction();
         transaction.setSender(senderEmail);
         transaction.setRecipient(recipientEmail);
         transaction.setTransactionDate(new Date());
         transaction.setAmount(amount);
+        transaction.setFee(fee);
         transaction.setTransactionNature(
                 TransactionNature.TO_CONTACTS);
-        transaction.setTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_ACCEPTED);
-        transaction.setTransactionProperty(transactionProperty);
+        transaction.setTransactionStatusInfo(transactionStatusInfo);
         //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
-    }
-
-    /**
-     * Set a rejected transaction for operations between contacts.
-     * @param amount amount of money
-     * @param recipient the email address of user who receives money
-     * @param sender the user to whom the transaction will be added
-     */
-    private void rejectedTransactionBetweenContacts(final Double amount,
-                                                    final String recipient,
-                                                    final User sender) {
-        Transaction transaction = new Transaction();
-        transaction.setSender(sender.getEmail());
-        transaction.setRecipient(recipient);
-        transaction.setTransactionDate(new Date());
-        transaction.setAmount(amount);
-        transaction.setTransactionNature(
-                TransactionNature.TO_CONTACTS);
-        transaction.setTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_REJECTED);
-        transaction.setTransactionProperty(TransactionProperty.SENDING_FAILED);
-        sender.getBuddyAccountInfo()
-                .addNewTransaction(transaction);
-        transactionRepository.save(transaction);
     }
 }

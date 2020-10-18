@@ -36,6 +36,7 @@ class TransactionConverterImplTest {
         transaction.setTransactionDate(transactionDate);
         transaction.setTransactionNature(TransactionNature.TO_CONTACTS);
         transaction.setAmount(150.0);
+        transaction.setFee(10.0);
         transaction.setTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_ACCEPTED);
         return transaction;
     }
@@ -46,7 +47,8 @@ class TransactionConverterImplTest {
         transactionDTO.setTransactionDate(transactionDTODate);
         transactionDTO.setTransactionNature("BETWEEN_ACCOUNTS");
         transactionDTO.setAmount(200.0);
-        transactionDTO.setTransactionStatusInfo("REJECTED");
+        transactionDTO.setFee(20.0);
+        transactionDTO.setTransactionStatusInfo("TRANSACTION_REJECTED");
         return transactionDTO;
     }
 
@@ -74,6 +76,7 @@ class TransactionConverterImplTest {
         assertEquals(transactionDTO1.getTransactionDate(), transaction.getTransactionDate());
         assertEquals(transactionDTO1.getTransactionNature(), transaction.getTransactionNature().toString());
         assertEquals(transactionDTO1.getAmount(), transaction.getAmount());
+        assertEquals(transactionDTO1.getFee(), transaction.getFee());
         assertEquals(transactionDTO1.getTransactionStatusInfo(), transaction.getTransactionStatusInfo().toString());
     }
 
@@ -97,7 +100,8 @@ class TransactionConverterImplTest {
         assertEquals(transaction1.getTransactionDate(), transactionDTO.getTransactionDate());
         assertEquals(transaction1.getTransactionNature().toString(), transactionDTO.getTransactionNature());
         assertEquals(transaction1.getAmount(), transactionDTO.getAmount());
-        //assertEquals(transaction1.getTransactionStatusInfo(), transactionDTO.getTransactionStatusInfo());
+        assertEquals(transaction1.getFee(), transactionDTO.getFee());
+        assertEquals(transaction1.getTransactionStatusInfo().toString(), transactionDTO.getTransactionStatusInfo());
     }
 
     @DisplayName("Convert TransactionDTO list to Transaction entity list")
