@@ -261,7 +261,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenContacts(
                         checkForSender, senderEmail, recipientEmail, amount,
-                        null, TransactionStatusInfo.TRANSACTION_REJECTED);
+                        null, TransactionStatusInfo.SENDING_IN_PROGRESS,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "Failed to deposit money on account."
                         + " You cannot deposit 0 buddies"
@@ -285,7 +286,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenContacts(
                         checkForSender, senderEmail, recipientEmail, amount,
-                        null, TransactionStatusInfo.TRANSACTION_REJECTED);
+                        null, TransactionStatusInfo.SENDING_IN_PROGRESS,
+                        TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "You cannot transfer money. Insufficient balance");
             }
@@ -295,6 +297,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             //CREATE A NEW ACCEPTED TRANSACTION FOR THE SENDER
             transactionsBetweenContacts(
                     checkForSender, senderEmail, recipientEmail, amount, fee,
+                    TransactionStatusInfo.SENDING_IN_PROGRESS,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE SENDER'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository.updateActualAccountBalance(
@@ -311,7 +314,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             //CREATE A NEW ACCEPTED TRANSACTION FOR RECIPIENT
             transactionsBetweenContacts(
                     checkForRecipient, senderEmail, recipientEmail,
-                    amount, null, TransactionStatusInfo.TRANSACTION_ACCEPTED);
+                    amount, null, TransactionStatusInfo.UP_COMING_TRANSACTION,
+                    TransactionStatusInfo.MONEY_RECEIVED);
             //UPDATE THE RECIPIENT'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository
                     .updateActualAccountBalance(
@@ -333,43 +337,50 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
-     *
+     * This local method is used to create transactions.
+     *                  between buddy and bank accounts
      * @param user the user to whom the
      *             transaction will be added
      * @param iban the associated bank account's iban
      *             from/to which the money will be transferred
      * @param amount amount of money that will be sent
-     * @param fee the fee that will be paid by the user
-     *            who sends money
-     * @param transactionStatusInfo the status of the transaction
+     * @param fee the fee that will be paid by the user who sends money
+     * @param finalTransactionStatusInfo final transaction status
      */
     private void transactionsBetweenBuddyAccountAndBankAccount(
             final User user, final String iban,
             final Double amount, final Double fee,
-            final TransactionStatusInfo transactionStatusInfo) {
+            final TransactionStatusInfo finalTransactionStatusInfo) {
         Transaction transaction = new Transaction();
         transaction.setSender(user.getEmail());
         transaction.setRecipient(iban);
-        transaction.setTransactionDate(new Date());
         transaction.setAmount(amount);
         transaction.setFee(fee);
         transaction.setTransactionNature(
                 TransactionNature.BETWEEN_ACCOUNTS);
-        transaction.setTransactionStatusInfo(transactionStatusInfo);
+        //INITIAL STATUS
+        transaction.setInitialTransactionStatusInfo(
+                TransactionStatusInfo.SENDING_IN_PROGRESS);
+        transaction.setInitialTransactionStatusInfoDate(new Date());
+        //FINAL STATUS
+        transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
+        transaction.setFinalTransactionStatusInfoDate(new Date());
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);
         transactionRepository.save(transaction);
     }
 
     /**
-     * Set a new transaction for operations between contacts.
+     * This local method is used to create transactions.
+     *          between different users of PayMyBuddy
      * @param user the user to whom the transaction will be added
      *             (sender and recipient)
      * @param senderEmail the sender's email address
      * @param recipientEmail the receiver's email address
      * @param amount amount of money sent/received
      * @param fee the fee that will be paid by the user
-     * @param transactionStatusInfo the transaction status
+     * @param initialTransactionStatusInfo initial transaction status
+     * @param finalTransactionStatusInfo final transaction status
      */
     private void transactionsBetweenContacts(
             final User user,
@@ -377,16 +388,22 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             final String recipientEmail,
             final Double amount,
             final Double fee,
-            final TransactionStatusInfo transactionStatusInfo) {
+            final TransactionStatusInfo initialTransactionStatusInfo,
+            final TransactionStatusInfo finalTransactionStatusInfo) {
         Transaction transaction = new Transaction();
         transaction.setSender(senderEmail);
         transaction.setRecipient(recipientEmail);
-        transaction.setTransactionDate(new Date());
         transaction.setAmount(amount);
         transaction.setFee(fee);
         transaction.setTransactionNature(
                 TransactionNature.TO_CONTACTS);
-        transaction.setTransactionStatusInfo(transactionStatusInfo);
+        //INITIAL STATUS
+        transaction.setInitialTransactionStatusInfo(
+                initialTransactionStatusInfo);
+        transaction.setInitialTransactionStatusInfoDate(new Date());
+        //FINAL STATUS
+        transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
+        transaction.setFinalTransactionStatusInfoDate(new Date());
         //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
         user.getBuddyAccountInfo()
                 .addNewTransaction(transaction);

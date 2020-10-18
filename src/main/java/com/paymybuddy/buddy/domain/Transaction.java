@@ -78,12 +78,6 @@ public class Transaction {
      */
     @Column(name = "fee")
     private Double fee;
-    /**
-     * The transaction date.
-     */
-    @NotNull
-    @Column(name = "transaction_date")
-    private Date transactionDate;
 
     /**
      * The transaction nature.
@@ -95,54 +89,108 @@ public class Transaction {
     private TransactionNature transactionNature;
 
     /**
-     * The transaction status.
-     * Accepted or rejected for some reason
+     * The initial transaction status.
+     * UP_COMING_TRANSACTION for recipients and SENDING_IN_PROGRESS for senders
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "transaction_status_info", length = LENGTH)
-    private TransactionStatusInfo transactionStatusInfo;
+    @Column(name = "initial_transaction_status_info", length = LENGTH)
+    private TransactionStatusInfo initialTransactionStatusInfo;
+
+    /**
+     * The initial transaction status date.
+     */
+    @NotNull
+    @Column(name = "initial_transaction_status_info_date")
+    private Date initialTransactionStatusInfoDate;
+
+    /**
+     * The final transaction status.
+     * TRANSACTION_ACCEPTED/TRANSACTION_REJECTED for senders or MONEY_RECEIVED
+     *                                                      for recipients
+     */
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    @Column(name = "final_transaction_status_info")
+    private TransactionStatusInfo finalTransactionStatusInfo;
+
+    /**
+     * The final transaction status date.
+     */
+    @NotNull
+    @Column(name = "final_transaction_status_info_date")
+    private Date finalTransactionStatusInfoDate;
 
     /**
      * Class constructor.
      * @param moneySender the source of the transaction
      * @param moneyRecipient the user who receives money
-     * @param amountOfMoney amount of money
-     * @param date transaction date
+     * @param amountOfMoney amount of money received/sent
      * @param nature transaction nature
-     * @param transactionStatus transaction status
+     * @param initialStatus the initial status of a transaction
+     * @param initialStatusDate transaction initialStatusDate
+     * @param finalStatus the last status of a transaction
+     * @param finalStatusDate final transaction status date
      */
     public Transaction(@NotNull final String moneySender,
                        @NotNull final String moneyRecipient,
                        @NotNull final Double amountOfMoney,
-                       @NotNull final Date date,
                        @NotNull final TransactionNature nature,
-                       @NotNull final TransactionStatusInfo transactionStatus) {
+                       @NotNull final TransactionStatusInfo initialStatus,
+                       @NotNull final Date initialStatusDate,
+                       @NotNull final TransactionStatusInfo finalStatus,
+                       @NotNull final Date finalStatusDate) {
         this.sender = moneySender;
         this.recipient = moneyRecipient;
         this.amount = amountOfMoney;
-        this.transactionDate = new Date(date.getTime());
         this.transactionNature = nature;
-        this.transactionStatusInfo = transactionStatus;
+        this.initialTransactionStatusInfo = initialStatus;
+        this.initialTransactionStatusInfoDate =
+                new Date(initialStatusDate.getTime());
+        this.finalTransactionStatusInfo = finalStatus;
+        this.finalTransactionStatusInfoDate =
+                new Date(finalStatusDate.getTime());
     }
 
     /**
-     * transactionDate getter.
-     * @return transaction date
+     * Getter of the initial transaction info date.
+     * @return initial transaction status date
      */
-    public Date getTransactionDate() {
-        if (transactionDate == null) {
+    public Date getInitialTransactionStatusInfoDate() {
+        if (initialTransactionStatusInfoDate == null) {
             return null;
         } else {
-            return new Date(transactionDate.getTime());
+            return new Date(initialTransactionStatusInfoDate.getTime());
         }
     }
 
     /**
-     * transactionDate setter.
-     * @param date transaction date
+     * Setter of the initial transaction status date.
+     * @param date date
      */
-    public void setTransactionDate(final Date date) {
-        this.transactionDate = new Date(date.getTime());
+    public void setInitialTransactionStatusInfoDate(
+            final Date date) {
+        this.initialTransactionStatusInfoDate =
+                new Date(date.getTime());
+    }
+
+    /**
+     * Getter for final transaction status date.
+     * @return final transaction date
+     */
+    public Date getFinalTransactionStatusInfoDate() {
+        if (finalTransactionStatusInfoDate == null) {
+            return null;
+        } else {
+            return new Date(finalTransactionStatusInfoDate.getTime());
+        }
+    }
+
+    /**
+     * Setter of the final transaction status date.
+     * @param date date
+     */
+    public void setFinalTransactionStatusInfoDate(final Date date) {
+        this.finalTransactionStatusInfoDate = new Date(date.getTime());
     }
 }

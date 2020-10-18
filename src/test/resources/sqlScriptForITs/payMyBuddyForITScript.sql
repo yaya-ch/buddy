@@ -64,9 +64,11 @@ CREATE TABLE transaction(
     fee DOUBLE,
     recipient VARCHAR,
     sender VARCHAR,
-    transaction_date VARCHAR,
     transaction_nature VARCHAR,
-    transaction_status_info VARCHAR,
+    initial_transaction_status_info VARCHAR,
+    initial_transaction_status_info_date DATETIME,
+    final_transaction_status_info VARCHAR,
+    final_transaction_status_info_date DATETIME,
     buddy_account_info_id INT,
     PRIMARY KEY (transaction_id),
     FOREIGN KEY (buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)

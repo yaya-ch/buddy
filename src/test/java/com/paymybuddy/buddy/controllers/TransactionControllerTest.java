@@ -46,13 +46,12 @@ class TransactionControllerTest {
 
     @BeforeEach
     void setUp() {
-        Date transactionDate = new Date();
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         transaction = new TransactionDTO();
         transaction.setAmount(100.5);
-        transaction.setTransactionStatusInfo("TRANSACTION_ACCEPTED");
+        transaction.setInitialTransactionStatusInfo("TRANSACTION_ACCEPTED");
         transaction.setTransactionNature("TO_CONTACTS");
-        transaction.setTransactionDate(transactionDate);
+        transaction.setInitialTransactionStatusInfoDate(new Date());
     }
 
     @DisplayName("Find by id returns correct transaction")

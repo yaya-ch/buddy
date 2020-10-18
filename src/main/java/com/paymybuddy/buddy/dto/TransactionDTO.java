@@ -46,13 +46,6 @@ public class TransactionDTO {
     private Double fee;
 
     /**
-     * The transaction date.
-     */
-    @NotNull
-    @NotBlank
-    private Date transactionDate;
-
-    /**
      * The transaction nature.
      * either to bank account or to contacts
      */
@@ -61,30 +54,73 @@ public class TransactionDTO {
     private String transactionNature;
 
     /**
-     * The transaction status.
-     * Accepted or rejected
+     * The initial transaction status.
+     * UP_COMING_TRANSACTION for recipients and SENDING_IN_PROGRESS for senders
      */
     @NotNull
     @NotBlank
-    private String transactionStatusInfo;
+    private String initialTransactionStatusInfo;
 
     /**
-     * transactionDate getter.
-     * @return transactionDate
+     * The initial transaction status date.
      */
-    public Date getTransactionDate() {
-        if (transactionDate == null) {
+    @NotNull
+    @NotBlank
+    private Date initialTransactionStatusInfoDate;
+
+    /**
+     * The final transaction status.
+     * TRANSACTION_ACCEPTED/TRANSACTION_REJECTED for senders or MONEY_RECEIVED
+     *                                              for recipients
+     */
+    @NotNull
+    @NotBlank
+    private String finalTransactionStatusInfo;
+
+    /**
+     * The final transaction status date.
+     */
+    @NotNull
+    @NotBlank
+    private Date finalTransactionStatusInfoDate;
+
+    /**
+     * Getter of the initial transaction info date.
+     * @return initial transaction status date
+     */
+    public Date getInitialTransactionStatusInfoDate() {
+        if (initialTransactionStatusInfoDate == null) {
             return null;
         } else {
-            return new Date(transactionDate.getTime());
+            return new Date(initialTransactionStatusInfoDate.getTime());
         }
     }
 
     /**
-     * transactionDate setter.
-     * @param date transactionDate
+     * Setter of the initial transaction status date.
+     * @param date date
      */
-    public void setTransactionDate(final Date date) {
-        this.transactionDate = new Date(date.getTime());
+    public void setInitialTransactionStatusInfoDate(final Date date) {
+        this.initialTransactionStatusInfoDate = new Date(date.getTime());
+    }
+
+    /**
+     * Getter for final transaction status date.
+     * @return final transaction date
+     */
+    public Date getFinalTransactionStatusInfoDate() {
+        if (finalTransactionStatusInfoDate == null) {
+            return null;
+        } else {
+            return new Date(finalTransactionStatusInfoDate.getTime());
+        }
+    }
+
+    /**
+     * Setter of the final transaction status date.
+     * @param date date
+     */
+    public void setFinalTransactionStatusInfoDate(final Date date) {
+        this.finalTransactionStatusInfoDate = new Date(date.getTime());
     }
 }
