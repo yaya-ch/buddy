@@ -78,7 +78,7 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(user);
         moneyOpsService.depositMoneyOnBuddyAccount(user.getEmail(), "IBANIBAN123456", deposit);
         Double newBalance = balance + (deposit - fee);
-        buddyAccountInfoRepository.updateBalance(1, newBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(1, newBalance);
         accountInfo.setActualAccountBalance(newBalance);
 
         assertEquals(newBalance, user.getBuddyAccountInfo().getActualAccountBalance());
@@ -140,8 +140,8 @@ class MoneyOpsServiceImplTest {
         Double fee = monetizingService.transactionFee(10.0);
         Double newSenderBalance = 1000.0 - 10.0 - fee;
         moneyOpsService.sendMoneyToUsers(sender.getEmail(), receiver.getEmail(), 10.0);
-        buddyAccountInfoRepository.updateBalance(sender.getUserId(), newSenderBalance);
-        buddyAccountInfoRepository.updateBalance(receiver.getUserId(), 10.1);
+        buddyAccountInfoRepository.updateActualAccountBalance(sender.getUserId(), newSenderBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(receiver.getUserId(), 10.1);
 
         assertEquals(2, transactions.size());
     }
@@ -226,7 +226,7 @@ class MoneyOpsServiceImplTest {
         moneyOpsService.transferMoneyToBankAccount("correct@email.com", "AZERTYUIOP123", 10.0);
         Double fee = monetizingService.transactionFee(10.0);
         Double update = (100.0 - fee - 10.0);
-        buddyAccountInfoRepository.updateBalance(1, update);
+        buddyAccountInfoRepository.updateActualAccountBalance(1, update);
 
         assertEquals(1, transactions.size());
 

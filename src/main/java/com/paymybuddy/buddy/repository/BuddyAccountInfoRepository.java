@@ -28,7 +28,23 @@ public interface BuddyAccountInfoRepository extends
     @Query("UPDATE BuddyAccountInfo b"
             + " SET b.actualAccountBalance=:updatedAccountBalance"
             + " WHERE b.buddyAccountInfoId=:id")
-    void updateBalance(@Param("id")Integer id,
-                       @Param("updatedAccountBalance")
-                               Double updatedAccountBalance);
+    void updateActualAccountBalance(@Param("id")Integer id,
+                                    @Param("updatedAccountBalance")
+                                            Double updatedAccountBalance);
+
+    /**
+     * Update the previous account balance.
+     * by replacing the current one by the amount
+     * of money that a user had before the transaction
+     * @param id the user's id
+     * @param updatePreviousBalance the amount that will be set
+     */
+    @Transactional
+    @Modifying
+    @Query("UPDATE BuddyAccountInfo b"
+            + " SET b.previousAccountBalance=:updatePreviousBalance"
+            + " WHERE b.buddyAccountInfoId=:id")
+    void updatePreviousAccountBalance(@Param("id") Integer id,
+                                      @Param("updatePreviousBalance")
+                                              Double updatePreviousBalance);
 }

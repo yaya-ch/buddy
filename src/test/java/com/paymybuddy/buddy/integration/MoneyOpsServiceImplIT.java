@@ -69,7 +69,9 @@ public class MoneyOpsServiceImplIT {
         Double fee = monetizingService.transactionFee(100.0);
 
         Double updatedBalance = (balance - fee) + 100.0;
-        buddyAccountInfoRepository.updateBalance(id, updatedBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(id, updatedBalance);
+        buddyAccountInfoRepository.updatePreviousAccountBalance(id, balance);
         assertEquals(199.5, findUser.getBuddyAccountInfo().getActualAccountBalance());
+        assertEquals(100.0, findUser.getBuddyAccountInfo().getPreviousAccountBalance());
     }
 }
