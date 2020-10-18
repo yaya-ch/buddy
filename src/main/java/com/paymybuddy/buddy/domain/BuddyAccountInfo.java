@@ -45,11 +45,18 @@ public class BuddyAccountInfo {
     private Integer buddyAccountInfoId;
 
     /**
-     * BuddyAccountInfo balance.
+     * BuddyAccountInfo actual balance.
      */
     @NotNull
-    @Column(name = "account_balance")
-    private Double accountBalance;
+    @Column(name = "actual_account_balance")
+    private Double actualAccountBalance;
+
+    /**
+     * BuddyAccountInfo previous balance(after the last transaction).
+     */
+    @NotNull
+    @Column(name = "previous_account_balance")
+    private Double previousAccountBalance;
 
     /**
      * Information related to the associated bank account.

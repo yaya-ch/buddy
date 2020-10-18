@@ -65,11 +65,11 @@ public class MoneyOpsServiceImplIT {
         moneyOpsService.depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123IBAN", 100.0);
         User findUser = userService.findByEmail("user@user.com");
         Integer id = findUser.getUserId();
-        Double balance = findUser.getBuddyAccountInfo().getAccountBalance();
+        Double balance = findUser.getBuddyAccountInfo().getActualAccountBalance();
         Double fee = monetizingService.transactionFee(100.0);
 
         Double updatedBalance = (balance - fee) + 100.0;
         buddyAccountInfoRepository.updateBalance(id, updatedBalance);
-        assertEquals(199.5, findUser.getBuddyAccountInfo().getAccountBalance());
+        assertEquals(199.5, findUser.getBuddyAccountInfo().getActualAccountBalance());
     }
 }

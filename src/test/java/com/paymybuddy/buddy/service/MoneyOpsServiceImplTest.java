@@ -67,21 +67,21 @@ class MoneyOpsServiceImplTest {
         Set<Transaction> transactions = new HashSet<>();
         user.setUserId(1);
         user.setEmail("email@email.com");
-        accountInfo.setAccountBalance(0.0);
+        accountInfo.setActualAccountBalance(0.0);
         accountInfo.setAssociatedBankAccountInfo(bankAccountInfo);
         accountInfo.setTransactions(transactions);
         user.setBuddyAccountInfo(accountInfo);
         Double deposit = 100.0;
         Double fee = monetizingService.transactionFee(deposit);
-        Double balance = user.getBuddyAccountInfo().getAccountBalance();
+        Double balance = user.getBuddyAccountInfo().getActualAccountBalance();
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
         moneyOpsService.depositMoneyOnBuddyAccount(user.getEmail(), "IBANIBAN123456", deposit);
         Double newBalance = balance + (deposit - fee);
         buddyAccountInfoRepository.updateBalance(1, newBalance);
-        accountInfo.setAccountBalance(newBalance);
+        accountInfo.setActualAccountBalance(newBalance);
 
-        assertEquals(newBalance, user.getBuddyAccountInfo().getAccountBalance());
+        assertEquals(newBalance, user.getBuddyAccountInfo().getActualAccountBalance());
         assertEquals(1, transactions.size());
     }
 
@@ -127,9 +127,9 @@ class MoneyOpsServiceImplTest {
         BuddyAccountInfo senderAccountInfo = new BuddyAccountInfo();
         BuddyAccountInfo receiverAccountInfo = new BuddyAccountInfo();
         Set<Transaction> transactions = new HashSet<>();
-        senderAccountInfo.setAccountBalance(1000.0);
+        senderAccountInfo.setActualAccountBalance(1000.0);
         senderAccountInfo.setTransactions(transactions);
-        receiverAccountInfo.setAccountBalance(50.0);
+        receiverAccountInfo.setActualAccountBalance(50.0);
         receiverAccountInfo.setTransactions(transactions);
         sender.setBuddyAccountInfo(senderAccountInfo);
         receiver.setBuddyAccountInfo(receiverAccountInfo);
@@ -193,7 +193,7 @@ class MoneyOpsServiceImplTest {
         User receiver = new User();
         BuddyAccountInfo accountInfo = new BuddyAccountInfo();
         Set<Transaction> transactions = new HashSet<>();
-        accountInfo.setAccountBalance(0.0);
+        accountInfo.setActualAccountBalance(0.0);
         accountInfo.setTransactions(transactions);
         sender.setBuddyAccountInfo(accountInfo);
         receiver.setBuddyAccountInfo(accountInfo);
@@ -216,7 +216,7 @@ class MoneyOpsServiceImplTest {
         Set<Transaction> transactions = new HashSet<>();
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         associatedBankAccountInfo.setIban("AZERTYUIOP123");
-        buddyAccountInfo.setAccountBalance(100.0);
+        buddyAccountInfo.setActualAccountBalance(100.0);
         buddyAccountInfo.setTransactions(transactions);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         user.setBuddyAccountInfo(buddyAccountInfo);
@@ -267,7 +267,7 @@ class MoneyOpsServiceImplTest {
         Set<Transaction> transactions = new HashSet<>();
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         associatedBankAccountInfo.setIban("AZERTYUIOP123");
-        buddyAccountInfo.setAccountBalance(100.0);
+        buddyAccountInfo.setActualAccountBalance(100.0);
         buddyAccountInfo.setTransactions(transactions);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         user.setBuddyAccountInfo(buddyAccountInfo);

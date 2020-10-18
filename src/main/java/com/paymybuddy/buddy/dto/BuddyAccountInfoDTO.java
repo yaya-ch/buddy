@@ -24,7 +24,14 @@ public class BuddyAccountInfoDTO {
      */
     @NotNull
     @NotBlank
-    private Double accountBalance;
+    private Double actualAccountBalance;
+
+    /**
+     * BuddyAccountInfo balance.
+     */
+    @NotNull
+    @NotBlank
+    private Double previousAccountBalance;
 
     /**
      * Information related to the associated bank account.

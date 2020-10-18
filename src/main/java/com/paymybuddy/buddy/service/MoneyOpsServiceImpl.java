@@ -128,7 +128,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Integer id = checkForExistingUser.getUserId();
             //GET THE USER'S ACCOUNT BALANCE
             Double accountBalance = checkForExistingUser
-                    .getBuddyAccountInfo().getAccountBalance();
+                    .getBuddyAccountInfo().getActualAccountBalance();
             //CALCULATE FEE(
             Double fee = monetizingService.transactionFee(amount);
             Double updatedAccountBalance = accountBalance + (amount - fee);
@@ -200,7 +200,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Double fee = monetizingService.transactionFee(amount);
             //******GET THE USER ACCOUNT BALANCE************
             Double currentAccountBalance = checkForExistingUser
-                    .getBuddyAccountInfo().getAccountBalance();
+                    .getBuddyAccountInfo().getActualAccountBalance();
             //******CHECK IF THE USER HAS ENOUGH MONEY************
             if ((fee + amount) > currentAccountBalance) {
                 LOGGER.error("Failed to transfer money from {} to bank account."
@@ -277,10 +277,12 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             Integer receiverId = checkForReceiver.getUserId();
             //CHECK THE SENDER'S ACCOUNT BALANCE
             Double senderAccountBalance =
-                    checkForSender.getBuddyAccountInfo().getAccountBalance();
+                    checkForSender.getBuddyAccountInfo()
+                    .getActualAccountBalance();
             //GET THE RECEIVER'S ACCOUNT BALANCE
             Double receiverAccountBalance =
-                    checkForReceiver.getBuddyAccountInfo().getAccountBalance();
+                    checkForReceiver.getBuddyAccountInfo()
+                    .getActualAccountBalance();
             Double fee = monetizingService.transactionFee(amount);
             if ((amount + fee) > senderAccountBalance) {
                 LOGGER.error("Transfer canceled."

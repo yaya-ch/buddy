@@ -26,7 +26,7 @@ public interface BuddyAccountInfoRepository extends
     @Transactional
     @Modifying
     @Query("UPDATE BuddyAccountInfo b"
-            + " SET b.accountBalance=:updatedAccountBalance"
+            + " SET b.actualAccountBalance=:updatedAccountBalance"
             + " WHERE b.buddyAccountInfoId=:id")
     void updateBalance(@Param("id")Integer id,
                        @Param("updatedAccountBalance")

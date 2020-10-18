@@ -36,7 +36,7 @@ class BuddyAccountInfoConverterImplTest {
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         Set<Transaction> transactions = new HashSet<>();
         buddyAccountInfo = new BuddyAccountInfo();
-        buddyAccountInfo.setAccountBalance(1200.67);
+        buddyAccountInfo.setActualAccountBalance(1200.67);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         buddyAccountInfo.setTransactions(transactions);
         return buddyAccountInfo;
@@ -46,7 +46,7 @@ class BuddyAccountInfoConverterImplTest {
         AssociatedBankAccountInfoDTO associatedBankAccountInfoDTO = new AssociatedBankAccountInfoDTO();
         Set<TransactionDTO> transactionDTOS = new HashSet<>();
         buddyAccountInfoDTO = new BuddyAccountInfoDTO();
-        buddyAccountInfoDTO.setAccountBalance(150.0);
+        buddyAccountInfoDTO.setActualAccountBalance(150.0);
         buddyAccountInfoDTO.setAssociatedBankAccountInfo(associatedBankAccountInfoDTO);
         buddyAccountInfoDTO.setTransactions(transactionDTOS);
         return buddyAccountInfoDTO;
@@ -73,7 +73,7 @@ class BuddyAccountInfoConverterImplTest {
     void buddyAccountInfoEntityToDTO_shouldConvertEntityToDTO() {
         BuddyAccountInfoDTO buddyAccountInfoDTO1 = converter.buddyAccountInfoEntityToDTO(buddyAccountInfo);
 
-        assertEquals(buddyAccountInfoDTO1.getAccountBalance(), buddyAccountInfo.getAccountBalance());
+        assertEquals(buddyAccountInfoDTO1.getActualAccountBalance(), buddyAccountInfo.getActualAccountBalance());
         assertEquals(buddyAccountInfoDTO1.getTransactions().size(), buddyAccountInfo.getTransactions().size());
     }
 
@@ -94,7 +94,7 @@ class BuddyAccountInfoConverterImplTest {
     void buddyAccountInfoDTOToEntity_shouldConvertDTOToEntity() {
         BuddyAccountInfo buddyAccountInfo1 = converter.buddyAccountInfoDTOToEntity(buddyAccountInfoDTO);
 
-        assertEquals(buddyAccountInfo1.getAccountBalance(), buddyAccountInfoDTO.getAccountBalance());
+        assertEquals(buddyAccountInfo1.getActualAccountBalance(), buddyAccountInfoDTO.getActualAccountBalance());
         assertEquals(buddyAccountInfo1.getTransactions().size(), buddyAccountInfoDTO.getTransactions().size());
     }
 

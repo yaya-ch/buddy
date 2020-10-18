@@ -19,13 +19,14 @@ VALUES (1, 'user', 'user', 'BICBIC345', 'IBANIBAN123IBAN');
 
 CREATE TABLE buddy_account_info(
     buddy_account_info_id INT,
-    account_balance DOUBLE,
+    actual_account_balance DOUBLE,
+    previous_account_balance DOUBLE,
     associated_bank_account_info_id INT,
     PRIMARY KEY (buddy_account_info_id),
     FOREIGN KEY (associated_bank_account_info_id) REFERENCES associated_bank_account_info(associated_bank_account_info_id)
     );
-INSERT INTO buddy_account_info (buddy_account_info_id, account_balance, associated_bank_account_info_id)
-VALUES (1, 100.0, 1);
+INSERT INTO buddy_account_info (buddy_account_info_id, actual_account_balance, previous_account_balance, associated_bank_account_info_id)
+VALUES (1, 100.0, 0.0, 1);
 
 CREATE TABLE user(
     user_id INT,
