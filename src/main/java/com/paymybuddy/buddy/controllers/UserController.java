@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -134,7 +133,8 @@ public class UserController {
         } else {
             LOGGER.error("failed to update user with id {}."
                     + " No matching id was found", id);
-            throw new BadCredentialsException("Bad credentials. Check your input please");
+            throw new BadCredentialsException(
+                    "Bad credentials. Check your input please");
         }
     }
 
@@ -155,7 +155,8 @@ public class UserController {
         } else {
             LOGGER.error("Failed to delete user with id: {}."
                     + " No matching Id was found", id);
-            throw new BadCredentialsException("Bad credentials. Check your input please");
+            throw new BadCredentialsException(
+                    "Bad credentials. Check your input please");
         }
     }
 }

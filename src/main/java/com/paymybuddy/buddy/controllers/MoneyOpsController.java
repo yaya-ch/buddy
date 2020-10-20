@@ -72,7 +72,8 @@ public class MoneyOpsController {
                 REPLACEMENT_CHARACTER);
         LOGGER.debug("Request to deposit {} on account {} from {}",
                 amount, secureEmail, secureIban);
-        moneyOpsService.depositMoneyOnBuddyAccount(secureEmail, secureIban, amount);
+        moneyOpsService.depositMoneyOnBuddyAccount(
+                secureEmail, secureIban, amount);
         return "Your account has been credited successfully";
     }
 
