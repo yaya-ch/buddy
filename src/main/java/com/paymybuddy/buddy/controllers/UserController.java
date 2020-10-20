@@ -115,7 +115,6 @@ public class UserController {
      * @param userDTO groups the information to update
      * @param id the user's id
      * @return success message
-     * @throws UsernameNotFoundException if no matching email was found
      */
     @PutMapping("/update/{id}")
     public String updateUser(@RequestBody final UserDTO userDTO,

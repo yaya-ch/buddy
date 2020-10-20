@@ -1,6 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
-import com.paymybuddy.buddy.constants.ColumnLength;
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -45,7 +45,7 @@ public class AssociatedBankAccountInfo {
      */
     @NotNull
     @Column(name = "bank_account_holder_first_name",
-            updatable = false, length = ColumnLength.FORTY_FIVE)
+            updatable = false, length = ConstantNumbers.FORTY_FIVE)
     private String bankAccountHolderFirstName;
 
     /**
@@ -53,7 +53,7 @@ public class AssociatedBankAccountInfo {
      */
     @NotNull
     @Column(name = "bank_account_holder_last_name",
-            updatable = false, length = ColumnLength.FORTY_FIVE)
+            updatable = false, length = ConstantNumbers.FORTY_FIVE)
     private String bankAccountHolderLastName;
 
     /**
@@ -61,7 +61,7 @@ public class AssociatedBankAccountInfo {
      * International Bank Account Number
      */
     @NotNull
-    @Column(name = "iban", unique = true, length = ColumnLength.THIRTY_FOUR)
+    @Column(name = "iban", unique = true, length = ConstantNumbers.THIRTY_FOUR)
     private String iban;
 
     /**
@@ -69,6 +69,6 @@ public class AssociatedBankAccountInfo {
      * Bank Identifier Code
      */
     @NotNull
-    @Column(name = "bic", unique = true, length = ColumnLength.FIFTEEN)
+    @Column(name = "bic", unique = true, length = ConstantNumbers.FIFTEEN)
     private String bic;
 }

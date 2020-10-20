@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.service;
 
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.enums.TransactionNature;
@@ -25,11 +26,6 @@ import java.util.Date;
 
 @Service
 public class MoneyOpsServiceImpl implements MoneyOpsService {
-
-    /**
-     * Represents the max amount that can be deposited by a user.
-     */
-    private static final int MAX_ALLOWED = 1000;
 
     /**
      * Class logger.
@@ -76,9 +72,12 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
-     * @param email  the user's email
+     *
+     * @param email the user's email
      * @param iban the associated bank account's iban
      * @param amount amount of money to deposit
+     * @throws ElementNotFoundException if no matching email was found in db
+     * @throws MoneyOpsException if errors occur while transferring money
      */
     @Transactional
     @Override
@@ -108,7 +107,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                         + " the associated bank account");
             }
             //CONTROL THE AMOUNT OF MONEY THAT A USER CAN DEPOSIT
-            if (amount > MAX_ALLOWED || amount <= 0) {
+            if (amount > ConstantNumbers.MAX_MONEY_ALLOWED || amount <= 0) {
                 LOGGER.error("Failed to credit account {}."
                         + " Amount must be greater than 0"
                         + " and less than or equals to 1000",
@@ -157,9 +156,13 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
-     * @param email  the user's email
-     * @param iban   the user's bank account iban
+     *
+     * @param email the user's email
+     * @param iban the user's bank account iban
      * @param amount the amount that users want
+     *               to transfer to their bank accounts
+     * @throws ElementNotFoundException if no matching email was found in db
+     * @throws MoneyOpsException if errors occur while transferring money
      */
     @Transactional
     @Override
@@ -238,9 +241,12 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
-     * @param senderEmail   the email of the sender
-     * @param recipientEmail the email of the user who will receive money
-     * @param amount        the amount that will be sent
+     *
+     * @param senderEmail the email of the sender
+     * @param recipientEmail
+     * @param amount the amount that will be sent
+     * @throws MoneyOpsException if errors occur while transfering money
+     * @throws ElementNotFoundException if no matching email was found in db
      */
     @Transactional
     @Override
@@ -253,7 +259,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
         User checkForRecipient = userRepository.findByEmail(recipientEmail);
         if (checkForSender != null && checkForRecipient != null) {
             //CONTROL THE AMOUNT OF MONEY THAT A USER CAN TRANSFER
-            if (amount > MAX_ALLOWED || amount <= 0) {
+            if (amount > ConstantNumbers.MAX_MONEY_ALLOWED || amount <= 0) {
                 LOGGER.error("Failed to transfer {} buddies to {}"
                                 + " Amount must be greater than 0"
                                 + " and less than or equals to 1000",

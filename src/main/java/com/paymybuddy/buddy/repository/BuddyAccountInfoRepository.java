@@ -20,8 +20,9 @@ public interface BuddyAccountInfoRepository extends
 
     /**
      * Update BuddyAccountInfo balance.
-     * @param id
-     * @param updatedAccountBalance
+     * @param id BuddyAccountInfo id
+     * @param updatedAccountBalance the new account balance that will replace
+     *                              the previous one
      */
     @Transactional
     @Modifying

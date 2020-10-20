@@ -1,6 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
-import com.paymybuddy.buddy.constants.ColumnLength;
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.enums.Role;
 import com.paymybuddy.buddy.enums.Civility;
 import lombok.AllArgsConstructor;
@@ -56,7 +56,7 @@ public class User {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "civility", updatable = false, length = ColumnLength.FIVE)
+    @Column(name = "civility", updatable = false, length = ConstantNumbers.FIVE)
     private Civility civility;
 
     /**
@@ -64,7 +64,7 @@ public class User {
      */
     @NotNull
     @Column(name = "first_name", updatable = false,
-            length = ColumnLength.FORTY_FIVE)
+            length = ConstantNumbers.FORTY_FIVE)
     private String firstName;
 
     /**
@@ -72,7 +72,7 @@ public class User {
      */
     @NotNull
     @Column(name = "last_name", updatable = false,
-            length = ColumnLength.FORTY_FIVE)
+            length = ConstantNumbers.FORTY_FIVE)
     private String lastName;
 
     /**
@@ -80,14 +80,14 @@ public class User {
      */
     @Email
     @NotNull
-    @Column(name = "email", unique = true, length = ColumnLength.FORTY_FIVE)
+    @Column(name = "email", unique = true, length = ConstantNumbers.FORTY_FIVE)
     private String email;
 
     /**
      * User's password.
      */
     @NotNull
-    @Column(name = "password", length = ColumnLength.SIXTY)
+    @Column(name = "password", length = ConstantNumbers.SIXTY)
     private String password;
 
     /**
@@ -95,7 +95,7 @@ public class User {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", updatable = false, length = ColumnLength.TEN)
+    @Column(name = "role", updatable = false, length = ConstantNumbers.TEN)
     private Role role;
 
     /**
@@ -109,28 +109,28 @@ public class User {
      * User's address.
      */
     @NotNull
-    @Column(name = "address", length = ColumnLength.EIGHTY)
+    @Column(name = "address", length = ConstantNumbers.EIGHTY)
     private String address;
 
     /**
      * A city where a user lives.
      */
     @NotNull
-    @Column(name = "city", length = ColumnLength.FORTY_FIVE)
+    @Column(name = "city", length = ConstantNumbers.FORTY_FIVE)
     private String city;
 
     /**
      * The city's zip code.
      */
     @NotNull
-    @Column(name = "zip", length = ColumnLength.FIVE)
+    @Column(name = "zip", length = ConstantNumbers.FIVE)
     private String zip;
 
     /**
      * User's phone number.
      */
     @NotNull
-    @Column(name = "phone", length = ColumnLength.TEN)
+    @Column(name = "phone", length = ConstantNumbers.TEN)
     private String phone;
 
     /**

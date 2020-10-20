@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     /**
      * UserRepository to inject.
      */
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     /**
      * Constructor injection.

@@ -1,6 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
-import com.paymybuddy.buddy.constants.ColumnLength;
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import lombok.NoArgsConstructor;
@@ -46,14 +46,14 @@ public class Transaction {
      * The user who sends money.
      */
     @NotNull
-    @Column(name = "sender", length = ColumnLength.FORTY_FIVE)
+    @Column(name = "sender", length = ConstantNumbers.FORTY_FIVE)
     private String sender;
 
     /**
      * The user who receives money.
      */
     @NotNull
-    @Column(name = "recipient", length = ColumnLength.FORTY_FIVE)
+    @Column(name = "recipient", length = ConstantNumbers.FORTY_FIVE)
     private String recipient;
 
     /**
@@ -76,7 +76,7 @@ public class Transaction {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_nature", length = ColumnLength.TWENTY_FIVE)
+    @Column(name = "transaction_nature", length = ConstantNumbers.TWENTY_FIVE)
     private TransactionNature transactionNature;
 
     /**
@@ -86,7 +86,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @NotNull
     @Column(name = "initial_transaction_status_info",
-            length = ColumnLength.TWENTY_FIVE)
+            length = ConstantNumbers.TWENTY_FIVE)
     private TransactionStatusInfo initialTransactionStatusInfo;
 
     /**
@@ -104,7 +104,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     @NotNull
     @Column(name = "final_transaction_status_info",
-            length = ColumnLength.TWENTY_FIVE)
+            length = ConstantNumbers.TWENTY_FIVE)
     private TransactionStatusInfo finalTransactionStatusInfo;
 
     /**
