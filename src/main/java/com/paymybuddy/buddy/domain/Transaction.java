@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
+import com.paymybuddy.buddy.constants.ColumnLength;
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import lombok.NoArgsConstructor;
@@ -33,16 +34,6 @@ import java.util.Date;
 public class Transaction {
 
     /**
-     * The maximum number of characters allowed in transactionNature.
-     */
-    private static final int LENGTH = 25;
-
-    /**
-     * The maximum number of characters allowed in sender/recipient.
-     */
-    private static final int MAX_LENGTH = 45;
-
-    /**
      * The transaction id.
      * automatically generated. auto incremented
      */
@@ -55,14 +46,14 @@ public class Transaction {
      * The user who sends money.
      */
     @NotNull
-    @Column(name = "sender", length = MAX_LENGTH)
+    @Column(name = "sender", length = ColumnLength.FORTY_FIVE)
     private String sender;
 
     /**
      * The user who receives money.
      */
     @NotNull
-    @Column(name = "recipient", length = MAX_LENGTH)
+    @Column(name = "recipient", length = ColumnLength.FORTY_FIVE)
     private String recipient;
 
     /**
@@ -85,7 +76,7 @@ public class Transaction {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_nature", length = LENGTH)
+    @Column(name = "transaction_nature", length = ColumnLength.TWENTY_FIVE)
     private TransactionNature transactionNature;
 
     /**
@@ -94,7 +85,8 @@ public class Transaction {
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "initial_transaction_status_info", length = LENGTH)
+    @Column(name = "initial_transaction_status_info",
+            length = ColumnLength.TWENTY_FIVE)
     private TransactionStatusInfo initialTransactionStatusInfo;
 
     /**
@@ -111,7 +103,8 @@ public class Transaction {
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "final_transaction_status_info")
+    @Column(name = "final_transaction_status_info",
+            length = ColumnLength.TWENTY_FIVE)
     private TransactionStatusInfo finalTransactionStatusInfo;
 
     /**

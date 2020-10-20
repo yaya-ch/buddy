@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
+import com.paymybuddy.buddy.constants.ColumnLength;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -31,20 +32,6 @@ import javax.validation.constraints.NotNull;
 public class AssociatedBankAccountInfo {
 
     /**
-     * The number of maximum characters allowed in some fields.
-     */
-    private static final int LENGTH = 45;
-
-    /**
-     * The number of maximum characters allowed IBANs.
-     */
-    private static final int IBAN_LENGTH = 34;
-
-    /**
-     * The number of maximum characters allowed in BICs.
-     */
-    private static final int BIC_LENGTH = 15;
-    /**
      * AssociatedBankAccountInfo id.
      * automatically generated. auto incremented
      */
@@ -58,7 +45,7 @@ public class AssociatedBankAccountInfo {
      */
     @NotNull
     @Column(name = "bank_account_holder_first_name",
-            updatable = false, length = LENGTH)
+            updatable = false, length = ColumnLength.FORTY_FIVE)
     private String bankAccountHolderFirstName;
 
     /**
@@ -66,7 +53,7 @@ public class AssociatedBankAccountInfo {
      */
     @NotNull
     @Column(name = "bank_account_holder_last_name",
-            updatable = false, length = LENGTH)
+            updatable = false, length = ColumnLength.FORTY_FIVE)
     private String bankAccountHolderLastName;
 
     /**
@@ -74,7 +61,7 @@ public class AssociatedBankAccountInfo {
      * International Bank Account Number
      */
     @NotNull
-    @Column(name = "iban", unique = true, length = IBAN_LENGTH)
+    @Column(name = "iban", unique = true, length = ColumnLength.THIRTY_FOUR)
     private String iban;
 
     /**
@@ -82,6 +69,6 @@ public class AssociatedBankAccountInfo {
      * Bank Identifier Code
      */
     @NotNull
-    @Column(name = "bic", unique = true, length = BIC_LENGTH)
+    @Column(name = "bic", unique = true, length = ColumnLength.FIFTEEN)
     private String bic;
 }
