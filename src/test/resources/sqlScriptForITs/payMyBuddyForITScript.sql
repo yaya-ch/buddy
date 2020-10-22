@@ -62,14 +62,14 @@ CREATE TABLE transaction(
     transaction_id INT NOT NULL AUTO_INCREMENT,
     amount DOUBLE,
     fee DOUBLE,
-    recipient VARCHAR,
-    sender VARCHAR,
     transaction_nature VARCHAR,
     initial_transaction_status_info VARCHAR,
     initial_transaction_status_info_date DATETIME,
     final_transaction_status_info VARCHAR,
     final_transaction_status_info_date DATETIME,
-    buddy_account_info_id INT,
+    sender_buddy_account_info_id INT,
+    recipient_buddy_account_info_id INT,
     PRIMARY KEY (transaction_id),
-    FOREIGN KEY (buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)
+    FOREIGN KEY (sender_buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id),
+    FOREIGN KEY (recipient_buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)
 )
