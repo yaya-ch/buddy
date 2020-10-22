@@ -20,18 +20,18 @@ import java.util.Date;
 public class TransactionDTO {
 
     /**
-     * The email or iban of the money sender.
+     * the source of the transaction.
      */
     @NotNull
     @NotBlank
-    private String sender;
+    private BuddyAccountInfoTransactionsDTO sender;
 
     /**
-     * The email or iban of the money receiver.
+     * the user who receives money.
      */
     @NotNull
     @NotBlank
-    private String recipient;
+    private BuddyAccountInfoTransactionsDTO recipient;
     /**
      * The amount transferred.
      */

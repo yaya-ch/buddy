@@ -19,15 +19,13 @@ public interface TransactionRepository
 
     /**
      * Find all user's transactions.
-     * @param id the user's id
+     * @param id the buddy account id
      * @return a list of user related transactions
      */
     @Query(value =
             "select * from transaction"
-            + " inner join"
-            + " user on user.buddy_account_info_id ="
-            + " transaction.buddy_account_info_id"
-            + " where user.user_id = ?",
+                    + " where"
+                    + " transaction.buddy_account_info_id = ?",
             nativeQuery = true)
     List<Transaction> findUserTransactions(Integer id);
 }

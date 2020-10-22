@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * @author Yahia CHERIFI
@@ -39,9 +38,4 @@ public class BuddyAccountInfoDTO {
     @NotNull
     @NotBlank
     private AssociatedBankAccountInfoDTO associatedBankAccountInfo;
-
-    /**
-     * A list of the different transactions.
-     */
-    private Set<TransactionDTO> transactions;
 }

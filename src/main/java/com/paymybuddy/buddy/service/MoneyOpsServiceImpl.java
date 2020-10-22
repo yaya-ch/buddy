@@ -1,6 +1,7 @@
 package com.paymybuddy.buddy.service;
 
 import com.paymybuddy.buddy.constants.ConstantNumbers;
+import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.enums.TransactionNature;
@@ -49,7 +50,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     private final MonetizingService monetizingService;
 
     /**
-     *
+     * TransactionRepository to inject.
      */
     private final TransactionRepository transactionRepository;
 
@@ -99,7 +100,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                         amount, email, iban);
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenBuddyAccountAndBankAccount(
-                        checkForExistingUser, iban, amount, null,
+                        checkForExistingUser, amount, null,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException("Failed"
                         + " to transfer money from the provided bank account."
@@ -114,7 +115,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                         email);
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenBuddyAccountAndBankAccount(
-                        checkForExistingUser, iban, amount, null,
+                        checkForExistingUser, amount, null,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 LOGGER.error("Failed to deposit money on {}."
                         + " The provided amount '{}' does not meet"
@@ -136,7 +137,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     getActualAccountBalance + (amount - fee);
             //CREATE A NEW ACCEPTED TRANSACTION
             transactionsBetweenBuddyAccountAndBankAccount(
-                    checkForExistingUser, iban, amount, fee,
+                    checkForExistingUser, amount, fee,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE ACTUAL BUDDY ACCOUNT BALANCE
             buddyAccountInfoRepository.updateActualAccountBalance(
@@ -188,7 +189,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                             + " bank account {}", email, iban);
                 //******CREATE A NEW REJECTED TRANSACTION************
                 transactionsBetweenBuddyAccountAndBankAccount(
-                        checkForExistingUser, iban, amount, null,
+                        checkForExistingUser, amount, null,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "The provided iban is different from the one"
@@ -205,10 +206,10 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             //******CHECK IF THE USER HAS ENOUGH MONEY************
             if ((fee + amount) > currentAccountBalance) {
                 LOGGER.error("Failed to transfer money from {} to bank account."
-                        + " {}", email, iban);
+                        + " {}. Insufficient balance", email, iban);
                 //******CREATE A NEW REJECTED TRANSACTION************
                 transactionsBetweenBuddyAccountAndBankAccount(
-                        checkForExistingUser, iban, amount, null,
+                        checkForExistingUser, amount, null,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "Failed to transfer money to your bank account."
@@ -218,7 +219,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     currentAccountBalance - (amount - fee);
             //******CREATE A NEW ACCEPTED TRANSACTION************
             transactionsBetweenBuddyAccountAndBankAccount(
-                    checkForExistingUser, iban, amount, fee,
+                    checkForExistingUser, amount, fee,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
 
             //******UPDATE THE USER'S ACCOUNT BALANCE**********
@@ -243,9 +244,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     /**
      *
      * @param senderEmail the email of the sender
-     * @param recipientEmail
+     * @param recipientEmail the email address of the recipient
      * @param amount the amount that will be sent
-     * @throws MoneyOpsException if errors occur while transfering money
+     * @throws MoneyOpsException if errors occur while transferring money
      * @throws ElementNotFoundException if no matching email was found in db
      */
     @Transactional
@@ -254,6 +255,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                                  final String recipientEmail,
                                  final Double amount) throws MoneyOpsException,
                                                 ElementNotFoundException {
+        //CHECK IF THE SENDER'S EMAIL EXISTS IN DB
         User checkForSender = userRepository.findByEmail(senderEmail);
         //CHECK IF THE RECIPIENT'S EMAIL EXISTS IN DB
         User checkForRecipient = userRepository.findByEmail(recipientEmail);
@@ -266,7 +268,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                                   amount, recipientEmail);
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenContacts(
-                        checkForSender, senderEmail, recipientEmail, amount,
+                        checkForSender, checkForRecipient, amount,
                         null, TransactionStatusInfo.SENDING_IN_PROGRESS,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
@@ -290,9 +292,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 LOGGER.error("Transfer canceled."
                         + " You do not have enough money on your account");
                 //CREATE A NEW REJECTED TRANSACTION
-                transactionsBetweenContacts(
-                        checkForSender, senderEmail, recipientEmail, amount,
-                        null, TransactionStatusInfo.SENDING_IN_PROGRESS,
+                transactionsBetweenContacts(checkForSender,
+                        checkForRecipient, amount, null,
+                        TransactionStatusInfo.SENDING_IN_PROGRESS,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "You cannot transfer money. Insufficient balance");
@@ -302,7 +304,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     senderActualAccountBalance - amount - fee;
             //CREATE A NEW ACCEPTED TRANSACTION FOR THE SENDER
             transactionsBetweenContacts(
-                    checkForSender, senderEmail, recipientEmail, amount, fee,
+                    checkForSender, checkForRecipient, amount, fee,
                     TransactionStatusInfo.SENDING_IN_PROGRESS,
                     TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE SENDER'S ACTUAL ACCOUNT BALANCE
@@ -319,8 +321,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                     recipientActualAccountBalance + amount;
             //CREATE A NEW ACCEPTED TRANSACTION FOR RECIPIENT
             transactionsBetweenContacts(
-                    checkForRecipient, senderEmail, recipientEmail,
-                    amount, null, TransactionStatusInfo.UP_COMING_TRANSACTION,
+                    checkForSender, checkForRecipient, amount, null,
+                    TransactionStatusInfo.UP_COMING_TRANSACTION,
                     TransactionStatusInfo.MONEY_RECEIVED);
             //UPDATE THE RECIPIENT'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository
@@ -347,19 +349,17 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      *                  between buddy and bank accounts
      * @param user the user to whom the
      *             transaction will be added
-     * @param iban the associated bank account's iban
-     *             from/to which the money will be transferred
      * @param amount amount of money that will be sent
      * @param fee the fee that will be paid by the user who sends money
      * @param finalTransactionStatusInfo final transaction status
      */
     private void transactionsBetweenBuddyAccountAndBankAccount(
-            final User user, final String iban,
-            final Double amount, final Double fee,
+            final User user, final Double amount, final Double fee,
             final TransactionStatusInfo finalTransactionStatusInfo) {
         Transaction transaction = new Transaction();
-        transaction.setSender(user.getEmail());
-        transaction.setRecipient(iban);
+        BuddyAccountInfo senderRecipient = user.getBuddyAccountInfo();
+        transaction.setSender(senderRecipient);
+        transaction.setRecipient(senderRecipient);
         transaction.setAmount(amount);
         transaction.setFee(fee);
         transaction.setTransactionNature(
@@ -371,34 +371,30 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
         //FINAL STATUS
         transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
         transaction.setFinalTransactionStatusInfoDate(new Date());
-        user.getBuddyAccountInfo()
-                .addNewTransaction(transaction);
+        //SAVE THE TRANSACTION
         transactionRepository.save(transaction);
     }
 
     /**
      * This local method is used to create transactions.
      *          between different users of PayMyBuddy
-     * @param user the user to whom the transaction will be added
-     *             (sender and recipient)
-     * @param senderEmail the sender's email address
-     * @param recipientEmail the receiver's email address
+     * @param sender the user who will send money
+     * @param recipient the user to whom money will be sent
      * @param amount amount of money sent/received
      * @param fee the fee that will be paid by the user
      * @param initialTransactionStatusInfo initial transaction status
      * @param finalTransactionStatusInfo final transaction status
      */
     private void transactionsBetweenContacts(
-            final User user,
-            final String senderEmail,
-            final String recipientEmail,
+            final User sender,
+            final User recipient,
             final Double amount,
             final Double fee,
             final TransactionStatusInfo initialTransactionStatusInfo,
             final TransactionStatusInfo finalTransactionStatusInfo) {
         Transaction transaction = new Transaction();
-        transaction.setSender(senderEmail);
-        transaction.setRecipient(recipientEmail);
+        transaction.setSender(sender.getBuddyAccountInfo());
+        transaction.setRecipient(recipient.getBuddyAccountInfo());
         transaction.setAmount(amount);
         transaction.setFee(fee);
         transaction.setTransactionNature(
@@ -410,8 +406,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
         //FINAL STATUS
         transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
         transaction.setFinalTransactionStatusInfoDate(new Date());
-        //ADD THE TRANSACTION TO THE USER'S BUDDY ACCOUNT INFO
-        user.getBuddyAccountInfo()
-                .addNewTransaction(transaction);
+        //SAVE THE TRANSACTION
+        transactionRepository.save(transaction);
     }
 }

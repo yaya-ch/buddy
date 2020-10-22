@@ -14,12 +14,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
 import javax.persistence.OneToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.JoinColumn;
 import javax.persistence.CascadeType;
-import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 /**
  * @author Yahia CHERIFI
@@ -65,19 +62,4 @@ public class BuddyAccountInfo {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "associated_bank_account_info_id")
     private AssociatedBankAccountInfo associatedBankAccountInfo;
-
-    /**
-     * A list of the different transactions.
-     */
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "buddy_account_info_id")
-    private Set<Transaction> transactions;
-
-    /**
-     * Add a new transaction to the list of transactions.
-     * @param transaction the transaction to add
-     */
-    public void addNewTransaction(final Transaction transaction) {
-        transactions.add(transaction);
-    }
 }

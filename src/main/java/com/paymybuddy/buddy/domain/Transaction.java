@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
+import javax.persistence.OneToOne;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
 import javax.validation.constraints.NotNull;
@@ -46,15 +47,15 @@ public class Transaction {
      * The user who sends money.
      */
     @NotNull
-    @Column(name = "sender", length = ConstantNumbers.FORTY_FIVE)
-    private String sender;
+    @OneToOne
+    private BuddyAccountInfo sender;
 
     /**
      * The user who receives money.
      */
     @NotNull
-    @Column(name = "recipient", length = ConstantNumbers.FORTY_FIVE)
-    private String recipient;
+    @OneToOne
+    private BuddyAccountInfo recipient;
 
     /**
      * The amount transferred.
@@ -125,8 +126,8 @@ public class Transaction {
      * @param finalStatus the last status of a transaction
      * @param finalStatusDate final transaction status date
      */
-    public Transaction(@NotNull final String moneySender,
-                       @NotNull final String moneyRecipient,
+    public Transaction(@NotNull final BuddyAccountInfo moneySender,
+                       @NotNull final BuddyAccountInfo moneyRecipient,
                        @NotNull final Double amountOfMoney,
                        @NotNull final TransactionNature nature,
                        @NotNull final TransactionStatusInfo initialStatus,
