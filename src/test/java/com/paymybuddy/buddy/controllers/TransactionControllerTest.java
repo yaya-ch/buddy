@@ -63,13 +63,23 @@ class TransactionControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("FindUserTransactions returns a list of transactions")
+    @DisplayName("LoadSenderTransactions returns a list of transactions")
     @Test
     void givenExitingUserId_whenGetRequestIsSentByFindUserTransactions_thenTransactionListShouldBeReturned() throws Exception {
         List<TransactionDTO> transactions = new ArrayList<>();
-        when(service.findUserTransactions(anyInt())).thenReturn(transactions);
+        when(service.loadSenderTransactions(anyInt())).thenReturn(transactions);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/transaction/findTransactions/1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/transaction/findSenderTransactions/1"))
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("LoadRecipientTransactions returns a list of transactions")
+    @Test
+    void givenExitingUserId_whenGetRequestIsSentByLoadRecipientTransactions_thenTransactionListShouldBeReturned() throws Exception {
+        List<TransactionDTO> transactions = new ArrayList<>();
+        when(service.loadRecipientTransactions(anyInt())).thenReturn(transactions);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/transaction/findRecipientTransactions/1"))
                 .andExpect(status().isOk());
     }
 }

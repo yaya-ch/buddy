@@ -1,12 +1,12 @@
 package com.paymybuddy.buddy.service;
 
 import com.paymybuddy.buddy.converters.TransactionConverter;
+import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
-import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.dto.TransactionDTO;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
+import com.paymybuddy.buddy.repository.BuddyAccountInfoRepository;
 import com.paymybuddy.buddy.repository.TransactionRepository;
-import com.paymybuddy.buddy.repository.UserRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +35,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
 
     /**
-     * UseRepository to inject.
+     * BuddyAccountInfoRepository to inject.
      */
-    private final UserRepository userRepository;
+    private final BuddyAccountInfoRepository buddyAccountInfoRepository;
 
     /**
      * TransactionConverter to inject.
@@ -47,16 +47,16 @@ public class TransactionServiceImpl implements TransactionService {
     /**
      * Construction injection.
      * @param repository TransactionRepository
-     * @param uRepository UserRepository
      * @param converter TransactionConverter
+     * @param bRepository BuddyAccountInfoRepository
      */
     @Autowired
     public TransactionServiceImpl(final TransactionRepository repository,
-                                  final UserRepository uRepository,
-                                  final TransactionConverter converter) {
+                                final TransactionConverter converter,
+                                final BuddyAccountInfoRepository bRepository) {
         this.transactionRepository = repository;
-        this.userRepository = uRepository;
         this.transactionConverter = converter;
+        this.buddyAccountInfoRepository = bRepository;
     }
 
     /**
@@ -83,19 +83,20 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     /**
-     * @param id the user's id
+     * @param id the buddy account id
      * @return a list of transactions (DTO)
      * @throws ElementNotFoundException if no matching user was found
      */
     @Override
-    public List<TransactionDTO> findUserTransactions(final Integer id)
+    public List<TransactionDTO> loadSenderTransactions(final Integer id)
             throws ElementNotFoundException {
-        List<Transaction> transactions =
-                transactionRepository.findUserTransactions(id);
-        Optional<User> checkForExistingUser = userRepository.findById(id);
-        if (checkForExistingUser.isPresent()) {
-            LOGGER.info("Transactions related to user {}"
-                    + " loaded successfully", id);
+        Optional<BuddyAccountInfo> checkForExistingBuddyAccount =
+                buddyAccountInfoRepository.findById(id);
+        if (checkForExistingBuddyAccount.isPresent()) {
+            List<Transaction> transactions =
+                    transactionRepository.findSenderTransactions(id);
+            LOGGER.info("Sent transactions related to buddy account {} loaded"
+                    + " successfully", id);
             return transactionConverter
                     .transactionEntityListToTransactionDTOList(transactions);
         } else {
@@ -103,6 +104,32 @@ public class TransactionServiceImpl implements TransactionService {
                     + " No user with id {} was found", id);
             throw new ElementNotFoundException("Failed to load transactions."
                     + " No matching user was found.");
+        }
+    }
+
+    /**
+     * @param id buddy account id
+     * @return a list of transactions
+     * @throws ElementNotFoundException if no matching buddy account found
+     */
+    @Override
+    public List<TransactionDTO> loadRecipientTransactions(final Integer id)
+            throws ElementNotFoundException {
+        Optional<BuddyAccountInfo> buddyAccountInfo =
+                buddyAccountInfoRepository.findById(id);
+        if (buddyAccountInfo.isPresent()) {
+            List<Transaction> recipientTransactions =
+                    transactionRepository.findRecipientTransactions(id);
+            LOGGER.info("Received transactions related buddy account {}"
+                    + " loaded successfully", id);
+            return transactionConverter
+                    .transactionEntityListToTransactionDTOList(
+                    recipientTransactions);
+        } else {
+            LOGGER.error("Failed to load received transactions related to buddy"
+                    + " account {}. No matching account found", id);
+            throw new ElementNotFoundException("Failed to load received"
+                    + " transactions related to buddy account " + id);
         }
     }
 }

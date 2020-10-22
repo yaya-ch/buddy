@@ -1,10 +1,12 @@
 package com.paymybuddy.buddy.integration;
 
 import com.paymybuddy.buddy.PayMyBuddyApplication;
+import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
 import com.paymybuddy.buddy.exceptions.MoneyOpsException;
 import com.paymybuddy.buddy.repository.BuddyAccountInfoRepository;
+import com.paymybuddy.buddy.repository.TransactionRepository;
 import com.paymybuddy.buddy.service.MonetizingServiceImpl;
 import com.paymybuddy.buddy.service.MoneyOpsServiceImpl;
 import com.paymybuddy.buddy.service.UserServiceImpl;
@@ -17,8 +19,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Yahia CHERIFI
@@ -39,6 +42,9 @@ public class MoneyOpsServiceImplIT {
 
     @Autowired
     private BuddyAccountInfoRepository buddyAccountInfoRepository;
+
+    @Autowired
+    private TransactionRepository transactionRepository;
 
     @DisplayName("Depositing money on account fails when no email matches")
     @Test
@@ -67,11 +73,15 @@ public class MoneyOpsServiceImplIT {
         Integer id = findUser.getUserId();
         Double balance = findUser.getBuddyAccountInfo().getActualAccountBalance();
         Double fee = monetizingService.transactionFee(100.0);
+        Optional<Transaction> transaction = transactionRepository.findById(1);
 
         Double updatedBalance = (balance - fee) + 100.0;
         buddyAccountInfoRepository.updateActualAccountBalance(id, updatedBalance);
         buddyAccountInfoRepository.updatePreviousAccountBalance(id, balance);
         assertEquals(199.5, findUser.getBuddyAccountInfo().getActualAccountBalance());
         assertEquals(100.0, findUser.getBuddyAccountInfo().getPreviousAccountBalance());
+        assertTrue(transaction.isPresent());
+        assertEquals(1, transaction.get().getSender().getBuddyAccountInfoId());
+        assertEquals(1, transaction.get().getRecipient().getBuddyAccountInfoId());
     }
 }

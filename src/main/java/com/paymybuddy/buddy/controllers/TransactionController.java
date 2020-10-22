@@ -57,15 +57,27 @@ public class TransactionController {
 
     /**
      * Retrieve the user's transactions.
-     * @param id the user's id
+     * @param id the buddyAccountInfo id
      * @return a call to the service layer(which returns a list of transactions)
      * @throws ElementNotFoundException if no matching user was found
      */
-    @GetMapping("/findTransactions/{id}")
-    public List<TransactionDTO> findUserTransactions(
-            @PathVariable final Integer id)
-            throws ElementNotFoundException {
-        LOGGER.debug("Loading transactions related to user {}", id);
-        return transactionService.findUserTransactions(id);
+    @GetMapping("/findSenderTransactions/{id}")
+    public List<TransactionDTO> loadSenderTransactions(
+            @PathVariable final Integer id) throws ElementNotFoundException {
+        LOGGER.debug("Loading transactions related to buddy account {}", id);
+        return transactionService.loadSenderTransactions(id);
+    }
+
+    /**
+     * Load given buddy account's received transactions.
+     * @param id buddy account id
+     * @return a list of transactions
+     * @throws ElementNotFoundException if no buddy account was found in db
+     */
+    @GetMapping("/findRecipientTransactions/{id}")
+    public List<TransactionDTO> loadRecipientTransactions(
+            @PathVariable final Integer id) throws ElementNotFoundException {
+        LOGGER.debug("Loading transactions related to recipient {}", id);
+        return transactionService.loadRecipientTransactions(id);
     }
 }

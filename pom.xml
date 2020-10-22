@@ -17,7 +17,7 @@
 
 	<properties>
 		<java.version>11</java.version>
-		<sonar.login>a1e13173cf956a0bf6c84f8840e3e9a0a7c3a60f</sonar.login>
+		<sonar.login>66a0a89f6555ed375197417298690e9ae0b0a62f</sonar.login>
 		<sonar.projectKey>yaya-ch_buddy</sonar.projectKey>
 		<sonar.organization>yaya-ch</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
