@@ -59,6 +59,11 @@ public final class ConstantNumbers {
     public static final int EIGHTY = 80;
 
     /**
+     * Refers to the max characters allowed in transaction description.
+     */
+    public static final int MAX_DESCRIPTION_CHARACTERS = 200;
+
+    /**
      * Refers to the max amount that a user can transfer.
      */
     public static final int MAX_MONEY_ALLOWED = 1000;

@@ -47,11 +47,12 @@ class MoneyOpsControllerTest {
     @Test
     void depositMoneyOnAccount_shouldReturnCorrectMessage() throws Exception {
         String message = "Your account has been credited successfully";
-        mockMvc.perform(MockMvcRequestBuilders.put("/operations/deposit/email@email.com/IBANIBAN123456/10.1"))
+        mockMvc.perform(MockMvcRequestBuilders.put("/operations/deposit/email@email.com/IBANIBAN123456/10.1/description here"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
         verify(moneyOpsService, times(1))
-                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456", 10.1);
+                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456",
+                        10.1, "description here");
     }
 
     @DisplayName("transferMoneyToUsers returns correct message and calls correct service method")
@@ -59,11 +60,12 @@ class MoneyOpsControllerTest {
     void transferMoneyToUsers_shouldReturnCorrectMessage() throws Exception {
         String message = "Money transferred successfully";
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/operations/transfer/sender@email.com/receiver@email.com/100.0"))
+                .put("/operations/transfer/sender@email.com/receiver@email.com/100.0/describe"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
         verify(moneyOpsService, times(1))
-                .sendMoneyToUsers("sender@email.com","receiver@email.com", 100.0);
+                .sendMoneyToUsers("sender@email.com","receiver@email.com",
+                        100.0, "describe");
     }
 
     @DisplayName("transferMoneyToBankAccount returns correct message and calls correct service method")
@@ -71,11 +73,12 @@ class MoneyOpsControllerTest {
     void transferMoneyToBankAccount_shouldReturnCorrectMessage() throws Exception {
         String message = "Money transferred successfully to your bank account";
         mockMvc.perform(MockMvcRequestBuilders
-                .put("/operations/transferToBank/user@email.com/IBANIBANIBANIBAN/100.0"))
+                .put("/operations/transferToBank/user@email.com/IBANIBANIBANIBAN/100.0/describe"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(message));
 
         verify(moneyOpsService, times(1))
-                .transferMoneyToBankAccount("user@email.com", "IBANIBANIBANIBAN", 100.0);
+                .transferMoneyToBankAccount("user@email.com", "IBANIBANIBANIBAN",
+                        100.0, "describe");
     }
 }

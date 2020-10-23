@@ -50,7 +50,8 @@ public class MoneyOpsServiceImplIT {
     @Test
     public void givenNonExistingUserEmail_whenDepositMoneyOnAccountsCalled_thenExceptionShouldBeThrown() {
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .depositMoneyOnBuddyAccount("wrong@email.com", "IBANIBAN123456", 100.0));
+                .depositMoneyOnBuddyAccount("wrong@email.com", "IBANIBAN123456",
+                        100.0, "wrong transaction"));
     }
 
     @DisplayName("Depositing money on account fails when amount equals to 0 or higher than 1000")
@@ -59,16 +60,18 @@ public class MoneyOpsServiceImplIT {
     @Test
     public void givenZeroOrMoreThanOneThousand_whenDepositMoneyOnAccountsCalled_thenExceptionShouldBeThrown() {
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123456", 1000.1));
+                .depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123456",
+                        1000.1, "amount greater than 1000"));
     }
 
-    @DisplayName("Existing user id return a list of available transactions")
+    @DisplayName("Deposit money on buddy account")
     @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
     @Sql(scripts = {"/sqlScriptForITs/payMyBuddyForITScript.sql"})
     @Test
     public void givenExistingUserEmail_whenDepositMoneyOnAccountsCalled_thenAccountCredited()
             throws ElementNotFoundException, MoneyOpsException {
-        moneyOpsService.depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123IBAN", 100.0);
+        moneyOpsService.depositMoneyOnBuddyAccount("user@user.com", "IBANIBAN123IBAN",
+                100.0, "test");
         User findUser = userService.findByEmail("user@user.com");
         Integer id = findUser.getUserId();
         Double balance = findUser.getBuddyAccountInfo().getActualAccountBalance();
@@ -83,5 +86,35 @@ public class MoneyOpsServiceImplIT {
         assertTrue(transaction.isPresent());
         assertEquals(1, transaction.get().getSender().getBuddyAccountInfoId());
         assertEquals(1, transaction.get().getRecipient().getBuddyAccountInfoId());
+        assertEquals("test", transaction.get().getDescription());
+    }
+
+    @DisplayName("Transfer money to users successfully")
+    @DirtiesContext(methodMode = DirtiesContext.MethodMode.BEFORE_METHOD)
+    @Sql(scripts = {"/sqlScriptForITs/payMyBuddyForITScript.sql"})
+    @Test
+    public void givenExistingSenderAndRecipient_whenSendMoneyToUserIsCalled_thenAccountCredited()
+            throws ElementNotFoundException, MoneyOpsException {
+        moneyOpsService.sendMoneyToUsers("user@user.com", "other@user.com",
+                10.0, "test");
+        User findSender = userService.findByEmail("user@user.com");
+        User findRecipient = userService.findByEmail("other@user.com");
+        Integer senderId = findSender.getUserId();
+        Integer recipientId = findRecipient.getUserId();
+        Double balance = findSender.getBuddyAccountInfo().getActualAccountBalance();
+        Double fee = monetizingService.transactionFee(10.0);
+        Optional<Transaction> transaction = transactionRepository.findById(1);
+
+        Double updateSenderBalance = (balance - fee) + 10.0;
+        Double updateRecipientBalance = findRecipient.getBuddyAccountInfo().getActualAccountBalance() + 10.0;
+        buddyAccountInfoRepository.updateActualAccountBalance(senderId, updateSenderBalance);
+        buddyAccountInfoRepository.updatePreviousAccountBalance(senderId, balance);
+        buddyAccountInfoRepository.updatePreviousAccountBalance(recipientId, findRecipient.getBuddyAccountInfo().getPreviousAccountBalance());
+        buddyAccountInfoRepository.updateActualAccountBalance(recipientId, updateRecipientBalance);
+        buddyAccountInfoRepository.updatePreviousAccountBalance(senderId, balance);
+
+        assertEquals(110, findRecipient.getBuddyAccountInfo().getActualAccountBalance());
+        assertEquals(89.95, findSender.getBuddyAccountInfo().getActualAccountBalance());
+        assertEquals("test", transaction.get().getDescription());
     }
 }

@@ -1,6 +1,8 @@
 package com.paymybuddy.buddy.converters;
 
+import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
+import com.paymybuddy.buddy.dto.BuddyAccountInfoTransactionsDTO;
 import com.paymybuddy.buddy.dto.TransactionDTO;
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
@@ -32,9 +34,14 @@ class TransactionConverterImplTest {
 
     private Transaction setTransaction() {
         transaction = new Transaction();
+        BuddyAccountInfo b = new BuddyAccountInfo();
+        b.setBuddyAccountInfoId(1);
+        transaction.setSender(b);
+        transaction.setRecipient(new BuddyAccountInfo());
         transaction.setTransactionNature(TransactionNature.TO_CONTACTS);
         transaction.setAmount(150.0);
         transaction.setFee(10.0);
+        transaction.setDescription("Birthday gift");
         transaction.setInitialTransactionStatusInfo(TransactionStatusInfo.SENDING_IN_PROGRESS);
         transaction.setInitialTransactionStatusInfoDate(new Date());
         transaction.setFinalTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_ACCEPTED);
@@ -44,9 +51,14 @@ class TransactionConverterImplTest {
 
     private TransactionDTO setTransactionDTO() {
         transactionDTO = new TransactionDTO();
+        BuddyAccountInfoTransactionsDTO b = new BuddyAccountInfoTransactionsDTO();
+        b.setBuddyAccountInfoId(1);
+        transactionDTO.setSender(b);
+        transactionDTO.setRecipient(new BuddyAccountInfoTransactionsDTO());
         transactionDTO.setTransactionNature("BETWEEN_ACCOUNTS");
         transactionDTO.setAmount(200.0);
         transactionDTO.setFee(20.0);
+        transactionDTO.setDescription("Your money");
         transactionDTO.setInitialTransactionStatusInfo("SENDING_IN_PROGRESS");
         transactionDTO.setInitialTransactionStatusInfoDate(new Date());
         transactionDTO.setFinalTransactionStatusInfo("TRANSACTION_REJECTED");
@@ -75,6 +87,7 @@ class TransactionConverterImplTest {
     void transactionEntityToTransactionDTO_shouldConvertEntityToDTO() {
         TransactionDTO transactionDTO1 = converter.transactionEntityToTransactionDTO(transaction);
 
+        assertEquals(transactionDTO1.getSender().getBuddyAccountInfoId(), transaction.getSender().getBuddyAccountInfoId());
         assertEquals(transactionDTO1.getTransactionNature(), transaction.getTransactionNature().toString());
         assertEquals(transactionDTO1.getAmount(), transaction.getAmount());
         assertEquals(transactionDTO1.getFee(), transaction.getFee());
@@ -82,6 +95,7 @@ class TransactionConverterImplTest {
         assertEquals(transactionDTO1.getInitialTransactionStatusInfoDate(), transaction.getInitialTransactionStatusInfoDate());
         assertEquals(transactionDTO1.getFinalTransactionStatusInfo(), transaction.getFinalTransactionStatusInfo().toString());
         assertEquals(transactionDTO1.getFinalTransactionStatusInfoDate(), transaction.getFinalTransactionStatusInfoDate());
+        assertEquals(transactionDTO1.getDescription(), transaction.getDescription());
     }
 
     @DisplayName("Convert Transaction entity list to TransactionDTO list")
@@ -104,6 +118,7 @@ class TransactionConverterImplTest {
         assertEquals(transaction1.getTransactionNature().toString(), transactionDTO.getTransactionNature());
         assertEquals(transaction1.getAmount(), transactionDTO.getAmount());
         assertEquals(transaction1.getFee(), transactionDTO.getFee());
+        assertEquals(transaction1.getDescription(), transactionDTO.getDescription());
         assertEquals(transaction1.getInitialTransactionStatusInfo().toString(), transactionDTO.getInitialTransactionStatusInfo());
         assertEquals(transaction1.getInitialTransactionStatusInfoDate(), transactionDTO.getInitialTransactionStatusInfoDate());
         assertEquals(transaction1.getFinalTransactionStatusInfo().toString(), transactionDTO.getFinalTransactionStatusInfo());

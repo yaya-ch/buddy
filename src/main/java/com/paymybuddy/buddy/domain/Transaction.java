@@ -72,6 +72,14 @@ public class Transaction {
     private Double fee;
 
     /**
+     * A message that describes the transaction.
+     */
+    @NotNull
+    @Column(name = "description",
+            length = ConstantNumbers.MAX_DESCRIPTION_CHARACTERS)
+    private String description;
+
+    /**
      * The transaction nature.
      * either to bank account or to contacts
      */

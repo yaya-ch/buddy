@@ -46,6 +46,11 @@ public class TransactionDTO {
     private Double fee;
 
     /**
+     * A message used to describe the transaction.
+     */
+    private String description;
+
+    /**
      * The transaction nature.
      * either to bank account or to contacts
      */

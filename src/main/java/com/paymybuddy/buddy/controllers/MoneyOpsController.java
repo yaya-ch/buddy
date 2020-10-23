@@ -58,22 +58,26 @@ public class MoneyOpsController {
      * @param email the user's email address
      * @param iban the associated bank account's iban
      * @param amount the amount to be deposited
+     * @param description a message in which the sender describes transactions
      * @return success message
      * @throws ElementNotFoundException if no email was found
      */
-    @PutMapping("/deposit/{email}/{iban}/{amount}")
+    @PutMapping("/deposit/{email}/{iban}/{amount}/{description}")
     public String depositMoneyOnAccount(@PathVariable final String email,
                                         @PathVariable final String iban,
-                                        @PathVariable final Double amount)
+                                        @PathVariable final Double amount,
+                                        @PathVariable final String description)
             throws ElementNotFoundException, MoneyOpsException {
         String secureEmail = email.replaceAll(DANGEROUS_CHARACTERS,
                 REPLACEMENT_CHARACTER);
         String secureIban = iban.replaceAll(DANGEROUS_CHARACTERS,
                 REPLACEMENT_CHARACTER);
+        String secureDescription = description.replaceAll(DANGEROUS_CHARACTERS,
+                REPLACEMENT_CHARACTER);
         LOGGER.debug("Request to deposit {} on account {} from {}",
                 amount, secureEmail, secureIban);
         moneyOpsService.depositMoneyOnBuddyAccount(
-                secureEmail, secureIban, amount);
+                secureEmail, secureIban, amount, secureDescription);
         return "Your account has been credited successfully";
     }
 
@@ -82,22 +86,26 @@ public class MoneyOpsController {
      * @param email the user's email
      * @param iban the user's bank account iban(the associated bank account)
      * @param amount amount of money a user wants to transfer
+     * @param description a message in which the sender describes transactions
      * @return a success message
      */
-    @PutMapping("/transferToBank/{email}/{iban}/{amount}")
+    @PutMapping("/transferToBank/{email}/{iban}/{amount}/{description}")
     public String transferMoneyToBankAccount(
             @PathVariable final String email,
             @PathVariable final String iban,
-            @PathVariable final Double amount)
+            @PathVariable final Double amount,
+            @PathVariable final String description)
             throws ElementNotFoundException, MoneyOpsException {
         String secureEmail = email
                 .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
         String secureIban = iban
                 .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        String secureDescription = description.replaceAll(DANGEROUS_CHARACTERS,
+                REPLACEMENT_CHARACTER);
         LOGGER.debug("Transferring {} from {} to bank account {}",
                 amount, secureEmail, secureIban);
         moneyOpsService.transferMoneyToBankAccount(
-                secureEmail, secureIban, amount);
+                secureEmail, secureIban, amount, secureDescription);
         return "Money transferred successfully to your bank account";
     }
 
@@ -106,21 +114,26 @@ public class MoneyOpsController {
      * @param senderEmail the email of the user who wants to send money
      * @param receiverEmail the email of the user who will receive money
      * @param amount the amount to be sent
+     * @param description a message in which the sender describes transactions
      * @return success message
      */
-    @PutMapping("/transfer/{senderEmail}/{receiverEmail}/{amount}")
+   @PutMapping("/transfer/{senderEmail}/{receiverEmail}/{amount}/{description}")
     public String transferMoneyToUsers(@PathVariable final String senderEmail,
                                        @PathVariable final String receiverEmail,
-                                       @PathVariable final Double amount)
+                                       @PathVariable final Double amount,
+                                       @PathVariable final String description)
             throws MoneyOpsException, ElementNotFoundException {
         String secureSenderEmail = senderEmail.replaceAll(DANGEROUS_CHARACTERS,
                 REPLACEMENT_CHARACTER);
         String secureReceiverEmail = receiverEmail
                 .replaceAll(DANGEROUS_CHARACTERS, REPLACEMENT_CHARACTER);
+        String secureDescription = description.replaceAll(DANGEROUS_CHARACTERS,
+                REPLACEMENT_CHARACTER);
         LOGGER.debug("Transferring {} from {} to {}",
                 amount, secureSenderEmail, secureReceiverEmail);
         moneyOpsService.sendMoneyToUsers(
-                secureSenderEmail, secureReceiverEmail, amount);
+                secureSenderEmail, secureReceiverEmail,
+                amount, secureDescription);
         return "Money transferred successfully";
     }
 }
