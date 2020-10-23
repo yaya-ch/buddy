@@ -273,7 +273,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenContacts(
                         checkForSender, checkForRecipient, amount, null,
-                        description, TransactionStatusInfo.SENDING_IN_PROGRESS,
+                        description,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "Failed to deposit money on account."
@@ -298,7 +298,6 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 //CREATE A NEW REJECTED TRANSACTION
                 transactionsBetweenContacts(checkForSender,
                         checkForRecipient, amount, null, description,
-                        TransactionStatusInfo.SENDING_IN_PROGRESS,
                         TransactionStatusInfo.TRANSACTION_REJECTED);
                 throw new MoneyOpsException(
                         "You cannot transfer money. Insufficient balance");
@@ -306,12 +305,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
 
             Double updatedSenderAccountBalance =
                     senderActualAccountBalance - amount - fee;
-            //CREATE A NEW ACCEPTED TRANSACTION FOR THE SENDER
-            transactionsBetweenContacts(
-                    checkForSender, checkForRecipient,
-                    amount, fee, description,
-                    TransactionStatusInfo.SENDING_IN_PROGRESS,
-                    TransactionStatusInfo.TRANSACTION_ACCEPTED);
+
             //UPDATE THE SENDER'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository.updateActualAccountBalance(
                     senderId, updatedSenderAccountBalance);
@@ -327,9 +321,8 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             //CREATE A NEW ACCEPTED TRANSACTION FOR RECIPIENT
             transactionsBetweenContacts(
                     checkForSender, checkForRecipient,
-                    amount, null, description,
-                    TransactionStatusInfo.UP_COMING_TRANSACTION,
-                    TransactionStatusInfo.MONEY_RECEIVED);
+                    amount, fee, description,
+                    TransactionStatusInfo.TRANSACTION_ACCEPTED);
             //UPDATE THE RECIPIENT'S ACTUAL ACCOUNT BALANCE
             buddyAccountInfoRepository
                     .updateActualAccountBalance(
@@ -375,7 +368,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.BETWEEN_ACCOUNTS);
         //INITIAL STATUS
         transaction.setInitialTransactionStatusInfo(
-                TransactionStatusInfo.SENDING_IN_PROGRESS);
+                TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
         transaction.setInitialTransactionStatusInfoDate(new Date());
         //FINAL STATUS
         transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
@@ -392,7 +385,6 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
      * @param amount amount of money sent/received
      * @param fee the fee that will be paid by the user
      * @param description a message in which the sender describes transactions
-     * @param initialTransactionStatusInfo initial transaction status
      * @param finalTransactionStatusInfo final transaction status
      */
     private void transactionsBetweenContacts(
@@ -401,7 +393,6 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
             final Double amount,
             final Double fee,
             final String description,
-            final TransactionStatusInfo initialTransactionStatusInfo,
             final TransactionStatusInfo finalTransactionStatusInfo) {
         Transaction transaction = new Transaction();
         transaction.setSender(sender.getBuddyAccountInfo());
@@ -413,7 +404,7 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
                 TransactionNature.TO_CONTACTS);
         //INITIAL STATUS
         transaction.setInitialTransactionStatusInfo(
-                initialTransactionStatusInfo);
+                TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
         transaction.setInitialTransactionStatusInfoDate(new Date());
         //FINAL STATUS
         transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);

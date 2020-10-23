@@ -25,12 +25,6 @@ public interface TransactionRepository
     @Query(value =
             "SELECT * FROM transaction"
                     + " WHERE "
-                    + "transaction.final_transaction_status_info ="
-                    + " 'TRANSACTION_ACCEPTED'"
-                    + " OR "
-                    + "transaction.final_transaction_status_info ="
-                    + " 'TRANSACTION_REJECTED'"
-                    + " AND "
                     + "transaction.sender_buddy_account_info_id = ?",
             nativeQuery = true)
     List<Transaction> findSenderTransactions(Integer id);
@@ -42,8 +36,6 @@ public interface TransactionRepository
      */
     @Query(value = "SELECT * FROM transaction"
             + " WHERE "
-            + "  transaction.final_transaction_status_info = 'MONEY_RECEIVED'"
-            + " AND "
             + "transaction.recipient_buddy_account_info_id = ?",
             nativeQuery = true)
     List<Transaction> findRecipientTransactions(Integer id);

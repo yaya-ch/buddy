@@ -42,7 +42,7 @@ class TransactionConverterImplTest {
         transaction.setAmount(150.0);
         transaction.setFee(10.0);
         transaction.setDescription("Birthday gift");
-        transaction.setInitialTransactionStatusInfo(TransactionStatusInfo.SENDING_IN_PROGRESS);
+        transaction.setInitialTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
         transaction.setInitialTransactionStatusInfoDate(new Date());
         transaction.setFinalTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_ACCEPTED);
         transaction.setFinalTransactionStatusInfoDate(new Date());
@@ -59,7 +59,7 @@ class TransactionConverterImplTest {
         transactionDTO.setAmount(200.0);
         transactionDTO.setFee(20.0);
         transactionDTO.setDescription("Your money");
-        transactionDTO.setInitialTransactionStatusInfo("SENDING_IN_PROGRESS");
+        transactionDTO.setInitialTransactionStatusInfo("TRANSACTION_IN_PROGRESS");
         transactionDTO.setInitialTransactionStatusInfoDate(new Date());
         transactionDTO.setFinalTransactionStatusInfo("TRANSACTION_REJECTED");
         transactionDTO.setFinalTransactionStatusInfoDate(new Date());

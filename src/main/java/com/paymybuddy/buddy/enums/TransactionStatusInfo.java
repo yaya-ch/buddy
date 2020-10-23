@@ -11,19 +11,7 @@ public enum TransactionStatusInfo {
      * This is the first status of a transaction before treatment.
      * It appears on the sender's related transaction
      */
-    SENDING_IN_PROGRESS,
-
-    /**
-     * This is the first status of a transaction before treatment.
-     * It appears on the recipient's related transaction
-     */
-    UP_COMING_TRANSACTION,
-
-    /**
-     * This is the final status of a transaction(transaction treated).
-     * It appears on the recipient's related transaction
-     */
-    MONEY_RECEIVED,
+    TRANSACTION_IN_PROGRESS,
 
     /**
      * Transaction accepted: money transferred successfully.
