@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.security;
 
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -20,11 +21,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @EnableWebSecurity
 @Configuration
 public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
-
-    /**
-     * BCryptPassWord encoding strength.
-     */
-    private static final int PASSWORD_ENCODING_STRENGTH = 15;
 
     /**
      * UserDetailsService to be injected.
@@ -81,6 +77,6 @@ public class BuddySecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(PASSWORD_ENCODING_STRENGTH);
+        return new BCryptPasswordEncoder(ConstantNumbers.FIFTEEN);
     }
 }

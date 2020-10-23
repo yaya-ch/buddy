@@ -1,7 +1,7 @@
 package com.paymybuddy.buddy.domain;
 
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.enums.TransactionNature;
-import com.paymybuddy.buddy.enums.TransactionProperty;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
@@ -15,6 +15,7 @@ import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
+import javax.persistence.OneToOne;
 import javax.persistence.Enumerated;
 import javax.persistence.EnumType;
 import javax.validation.constraints.NotNull;
@@ -34,16 +35,6 @@ import java.util.Date;
 public class Transaction {
 
     /**
-     * The maximum number of characters allowed in transactionNature.
-     */
-    private static final int LENGTH = 25;
-
-    /**
-     * The maximum number of characters allowed in sender/recipient.
-     */
-    private static final int MAX_LENGTH = 45;
-
-    /**
      * The transaction id.
      * automatically generated. auto incremented
      */
@@ -56,15 +47,15 @@ public class Transaction {
      * The user who sends money.
      */
     @NotNull
-    @Column(name = "sender", length = MAX_LENGTH)
-    private String sender;
+    @OneToOne
+    private BuddyAccountInfo sender;
 
     /**
      * The user who receives money.
      */
     @NotNull
-    @Column(name = "recipient", length = MAX_LENGTH)
-    private String recipient;
+    @OneToOne
+    private BuddyAccountInfo recipient;
 
     /**
      * The amount transferred.
@@ -74,11 +65,19 @@ public class Transaction {
     private Double amount;
 
     /**
-     * The transaction date.
+     * The fee that will be paid by the user who sends money.
+     * Use mainly for monetizing the application
+     */
+    @Column(name = "fee")
+    private Double fee;
+
+    /**
+     * A message that describes the transaction.
      */
     @NotNull
-    @Column(name = "transaction_date")
-    private Date transactionDate;
+    @Column(name = "description",
+            length = ConstantNumbers.MAX_DESCRIPTION_CHARACTERS)
+    private String description;
 
     /**
      * The transaction nature.
@@ -86,70 +85,114 @@ public class Transaction {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_nature", length = LENGTH)
+    @Column(name = "transaction_nature", length = ConstantNumbers.TWENTY_FIVE)
     private TransactionNature transactionNature;
 
     /**
-     * The transaction status.
-     * Accepted or rejected for some reason
+     * The initial transaction status.
+     * UP_COMING_TRANSACTION for recipients and SENDING_IN_PROGRESS for senders
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "transaction_status_info", length = LENGTH)
-    private TransactionStatusInfo transactionStatusInfo;
+    @Column(name = "initial_transaction_status_info",
+            length = ConstantNumbers.TWENTY_FIVE)
+    private TransactionStatusInfo initialTransactionStatusInfo;
 
     /**
-     * Additional information about transactions.
-     * SENT, RECEIVED, SENDING_FAILED, DEPOSITING_FAILED
+     * The initial transaction status date.
+     */
+    @NotNull
+    @Column(name = "initial_transaction_status_info_date")
+    private Date initialTransactionStatusInfoDate;
+
+    /**
+     * The final transaction status.
+     * TRANSACTION_ACCEPTED/TRANSACTION_REJECTED for senders or MONEY_RECEIVED
+     *                                                      for recipients
      */
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name = "transaction_property", length = LENGTH)
-    private TransactionProperty transactionProperty;
+    @Column(name = "final_transaction_status_info",
+            length = ConstantNumbers.TWENTY_FIVE)
+    private TransactionStatusInfo finalTransactionStatusInfo;
+
+    /**
+     * The final transaction status date.
+     */
+    @NotNull
+    @Column(name = "final_transaction_status_info_date")
+    private Date finalTransactionStatusInfoDate;
 
     /**
      * Class constructor.
      * @param moneySender the source of the transaction
      * @param moneyRecipient the user who receives money
-     * @param amountOfMoney amount of money
-     * @param date transaction date
+     * @param amountOfMoney amount of money received/sent
      * @param nature transaction nature
-     * @param transactionStatus transaction status
-     * @param property transaction property
+     * @param initialStatus the initial status of a transaction
+     * @param initialStatusDate transaction initialStatusDate
+     * @param finalStatus the last status of a transaction
+     * @param finalStatusDate final transaction status date
      */
-    public Transaction(@NotNull final String moneySender,
-                       @NotNull final String moneyRecipient,
+    public Transaction(@NotNull final BuddyAccountInfo moneySender,
+                       @NotNull final BuddyAccountInfo moneyRecipient,
                        @NotNull final Double amountOfMoney,
-                       @NotNull final Date date,
                        @NotNull final TransactionNature nature,
-                       @NotNull final TransactionStatusInfo transactionStatus,
-                       @NotNull final TransactionProperty property) {
+                       @NotNull final TransactionStatusInfo initialStatus,
+                       @NotNull final Date initialStatusDate,
+                       @NotNull final TransactionStatusInfo finalStatus,
+                       @NotNull final Date finalStatusDate) {
         this.sender = moneySender;
         this.recipient = moneyRecipient;
         this.amount = amountOfMoney;
-        this.transactionDate = new Date(date.getTime());
         this.transactionNature = nature;
-        this.transactionStatusInfo = transactionStatus;
-        this.transactionProperty = property;
+        this.initialTransactionStatusInfo = initialStatus;
+        this.initialTransactionStatusInfoDate =
+                new Date(initialStatusDate.getTime());
+        this.finalTransactionStatusInfo = finalStatus;
+        this.finalTransactionStatusInfoDate =
+                new Date(finalStatusDate.getTime());
     }
 
     /**
-     * transactionDate getter.
-     * @return transaction date
+     * Getter of the initial transaction info date.
+     * @return initial transaction status date
      */
-    public Date getTransactionDate() {
-        if (transactionDate == null) {
+    public Date getInitialTransactionStatusInfoDate() {
+        if (initialTransactionStatusInfoDate == null) {
             return null;
         } else {
-            return new Date(transactionDate.getTime());
+            return new Date(initialTransactionStatusInfoDate.getTime());
         }
     }
 
     /**
-     * transactionDate setter.
-     * @param date transaction date
+     * Setter of the initial transaction status date.
+     * @param date date
      */
-    public void setTransactionDate(final Date date) {
-        this.transactionDate = new Date(date.getTime());
+    public void setInitialTransactionStatusInfoDate(
+            final Date date) {
+        this.initialTransactionStatusInfoDate =
+                new Date(date.getTime());
+    }
+
+    /**
+     * Getter for final transaction status date.
+     * @return final transaction date
+     */
+    public Date getFinalTransactionStatusInfoDate() {
+        if (finalTransactionStatusInfoDate == null) {
+            return null;
+        } else {
+            return new Date(finalTransactionStatusInfoDate.getTime());
+        }
+    }
+
+    /**
+     * Setter of the final transaction status date.
+     * @param date date
+     */
+    public void setFinalTransactionStatusInfoDate(final Date date) {
+        this.finalTransactionStatusInfoDate = new Date(date.getTime());
     }
 }

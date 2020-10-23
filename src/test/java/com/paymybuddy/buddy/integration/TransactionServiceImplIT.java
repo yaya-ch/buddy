@@ -48,7 +48,7 @@ public class TransactionServiceImplIT {
     @Test
     public void givenExistingUserId_whenFindUserTransactions_thenListShouldBeReturned()
             throws ElementNotFoundException {
-        List<TransactionDTO> transactions = transactionService.findUserTransactions(1);
+        List<TransactionDTO> transactions = transactionService.loadSenderTransactions(1);
         assertEquals(0, transactions.size());
     }
 }

@@ -35,7 +35,7 @@ public class BuddyAccountInfoServiceImplIT {
     public void givenExistingBuddyAccountId_whenFindByIdIsCalled_thenCorrectDataShouldBeReturned() {
         Optional<BuddyAccountInfo> findUser = buddyAccountInfoService.findById(1);
         assertTrue(findUser.isPresent());
-        assertEquals(100.0, findUser.get().getAccountBalance());
+        assertEquals(100.0, findUser.get().getActualAccountBalance());
     }
 
     @DisplayName("Non existing BuddyAccountId returns null")

@@ -1,9 +1,11 @@
 package com.paymybuddy.buddy.service;
 
 import com.paymybuddy.buddy.converters.TransactionConverter;
+import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
+import com.paymybuddy.buddy.repository.BuddyAccountInfoRepository;
 import com.paymybuddy.buddy.repository.TransactionRepository;
 import com.paymybuddy.buddy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,12 +15,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
@@ -38,14 +37,17 @@ class TransactionServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    TransactionConverter converter;
+    private TransactionConverter converter;
+
+    @Mock
+    private BuddyAccountInfoRepository buddyRepository;
 
     private Transaction transaction;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        transactionService = new TransactionServiceImpl(repository, userRepository, converter);
+        transactionService = new TransactionServiceImpl(repository, converter, buddyRepository);
         transaction = new Transaction();
     }
 
@@ -66,20 +68,35 @@ class TransactionServiceImplTest {
 
     @DisplayName("Get user transactions returns calls the right method in transaction repo")
     @Test
-    void givenExistingUserId_whenGetUserTransactionsIsCalled_thenTransactionListShouldBeReturned() throws ElementNotFoundException {
-        List<Transaction> transactions = new ArrayList<>();
-        Optional<User> user = Optional.of(new User());
-        when(repository.findUserTransactions(anyInt())).thenReturn(transactions);
-        when(userRepository.findById(anyInt())).thenReturn(user);
-        transactionService.findUserTransactions(1);
-        verify(repository, times(1)).findUserTransactions(1);
+    void givenExistingUserId_whenLoadSenderTransactionsIsCalled_thenTransactionListShouldBeReturned() throws ElementNotFoundException {
+        Optional<BuddyAccountInfo> buddy = Optional.of(new BuddyAccountInfo());
+        when(buddyRepository.findById(anyInt())).thenReturn(buddy);
+        transactionService.loadSenderTransactions(1);
+        verify(repository, times(1)).findSenderTransactions(1);
     }
 
     @DisplayName("Get user transactions throws exception")
     @Test
-    void givenNonExistingUserId_whenGetUserTransactionsIsCalled_thenExceptionShouldBeThrown() {
+    void givenNonExistingUserId_whenLoadSenderTransactionsIsCalled_thenExceptionShouldBeThrown() {
         User user = new User();
         when(userRepository.findById(1)).thenReturn(Optional.of(user));
-        assertThrows(ElementNotFoundException.class, () -> transactionService.findUserTransactions(anyInt()));
+        assertThrows(ElementNotFoundException.class, () -> transactionService.loadSenderTransactions(anyInt()));
+    }
+
+    @DisplayName("Get user transactions returns calls the right method in transaction repo")
+    @Test
+    void givenExistingUserId_whenLoadRecipientTransactionsIsCalled_thenTransactionListShouldBeReturned() throws ElementNotFoundException {
+        Optional<BuddyAccountInfo> buddy = Optional.of(new BuddyAccountInfo());
+        when(buddyRepository.findById(anyInt())).thenReturn(buddy);
+        transactionService.loadRecipientTransactions(1);
+        verify(repository, times(1)).findRecipientTransactions(1);
+    }
+
+    @DisplayName("Get user transactions throws exception")
+    @Test
+    void givenNonExistingUserId_whenLoadRecipientTransactionsIsCalled_thenExceptionShouldBeThrown() {
+        User user = new User();
+        when(userRepository.findById(1)).thenReturn(Optional.of(user));
+        assertThrows(ElementNotFoundException.class, () -> transactionService.loadRecipientTransactions(anyInt()));
     }
 }

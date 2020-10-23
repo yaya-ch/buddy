@@ -23,11 +23,20 @@ public interface TransactionService {
     TransactionDTO findById(Integer id) throws ElementNotFoundException;
 
     /**
-     * Retrieve a list of a given user's transactions.
-     * @param id the user's id
+     * Retrieve transactions where buddy account is the sender.
+     * @param id the buddy account id
      * @return a list of transactions
-     * @throws ElementNotFoundException if no matching user was found
+     * @throws ElementNotFoundException if no matching buddy account was found
      */
-    List<TransactionDTO> findUserTransactions(Integer id)
+    List<TransactionDTO> loadSenderTransactions(Integer id)
+            throws ElementNotFoundException;
+
+    /**
+     * Retrieve transactions where buddy account is the receiver.
+     * @param id buddy account id
+     * @return a list of transactions
+     * @throws ElementNotFoundException if no matching buddy account was found
+     */
+    List<TransactionDTO> loadRecipientTransactions(Integer id)
             throws ElementNotFoundException;
 }
