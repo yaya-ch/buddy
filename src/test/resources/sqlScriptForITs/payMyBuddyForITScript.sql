@@ -17,15 +17,21 @@ CREATE TABLE associated_bank_account_info (
 INSERT INTO associated_bank_account_info(associated_bank_account_info_id, bank_account_holder_first_name, bank_account_holder_last_name, bic, iban)
 VALUES (1, 'user', 'user', 'BICBIC345', 'IBANIBAN123IBAN');
 
+INSERT INTO associated_bank_account_info(associated_bank_account_info_id, bank_account_holder_first_name, bank_account_holder_last_name, bic, iban)
+VALUES (2, 'other', 'user', 'BICBIC3451', 'IBANIBAN123IBAN12');
 CREATE TABLE buddy_account_info(
     buddy_account_info_id INT,
-    account_balance DOUBLE,
+    actual_account_balance DOUBLE,
+    previous_account_balance DOUBLE,
     associated_bank_account_info_id INT,
     PRIMARY KEY (buddy_account_info_id),
     FOREIGN KEY (associated_bank_account_info_id) REFERENCES associated_bank_account_info(associated_bank_account_info_id)
     );
-INSERT INTO buddy_account_info (buddy_account_info_id, account_balance, associated_bank_account_info_id)
-VALUES (1, 100.0, 1);
+INSERT INTO buddy_account_info (buddy_account_info_id, actual_account_balance, previous_account_balance, associated_bank_account_info_id)
+VALUES (1, 100.0, 0.0, 1);
+
+INSERT INTO buddy_account_info (buddy_account_info_id, actual_account_balance, previous_account_balance, associated_bank_account_info_id)
+VALUES (2, 100.0, 0.0, 2);
 
 CREATE TABLE user(
     user_id INT,
@@ -48,6 +54,9 @@ CREATE TABLE user(
 INSERT INTO user(user_id, address, birth_date, city, civility, email, first_name, last_name, password, phone, role, zip, buddy_account_info_id)
 VALUES (1, 'any address', '1991-01-01', 'any city', 'SIR', 'user@user.com', 'user', 'user', '$2a$15$UonCA3GSGIb.IvzHCet.Z.XxemHD14EeMspbN/bCMHZeWnV237Zca', '123456789', 'ROLE_USER', '12345', 1);
 
+INSERT INTO user(user_id, address, birth_date, city, civility, email, first_name, last_name, password, phone, role, zip, buddy_account_info_id)
+VALUES (2, 'other address', '1995-01-01', 'other city', 'MADAM', 'other@user.com', 'other', 'user', '$2a$15$UonCA3GSGIb.IvzHCet.Z.XxemHD14EeMspbN/bCMHZeWnV237Zca', '123886789', 'ROLE_USER', '22345', 2);
+
 CREATE TABLE contacts(
     user_id INT,
     contact_id INT,
@@ -60,13 +69,16 @@ DROP TABLE IF EXISTS transaction;
 CREATE TABLE transaction(
     transaction_id INT NOT NULL AUTO_INCREMENT,
     amount DOUBLE,
-    recipient VARCHAR,
-    sender VARCHAR,
-    transaction_date VARCHAR,
+    fee DOUBLE,
+    description VARCHAR,
     transaction_nature VARCHAR,
-    transaction_status_info VARCHAR,
-    transaction_property VARCHAR,
-    buddy_account_info_id INT,
+    initial_transaction_status_info VARCHAR,
+    initial_transaction_status_info_date DATETIME,
+    final_transaction_status_info VARCHAR,
+    final_transaction_status_info_date DATETIME,
+    sender_buddy_account_info_id INT,
+    recipient_buddy_account_info_id INT,
     PRIMARY KEY (transaction_id),
-    FOREIGN KEY (buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)
+    FOREIGN KEY (sender_buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id),
+    FOREIGN KEY (recipient_buddy_account_info_id) REFERENCES buddy_account_info(buddy_account_info_id)
 )

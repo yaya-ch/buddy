@@ -2,7 +2,6 @@ package com.paymybuddy.buddy.service;
 
 import com.paymybuddy.buddy.domain.AssociatedBankAccountInfo;
 import com.paymybuddy.buddy.domain.BuddyAccountInfo;
-import com.paymybuddy.buddy.domain.Transaction;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.exceptions.ElementNotFoundException;
 import com.paymybuddy.buddy.exceptions.MoneyOpsException;
@@ -12,9 +11,6 @@ import com.paymybuddy.buddy.repository.UserRepository;
 import org.junit.jupiter.api.*;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -64,25 +60,22 @@ class MoneyOpsServiceImplTest {
         BuddyAccountInfo accountInfo = new BuddyAccountInfo();
         AssociatedBankAccountInfo bankAccountInfo = new AssociatedBankAccountInfo();
         bankAccountInfo.setIban("IBANIBAN123456");
-        Set<Transaction> transactions = new HashSet<>();
         user.setUserId(1);
         user.setEmail("email@email.com");
-        accountInfo.setAccountBalance(0.0);
+        accountInfo.setActualAccountBalance(0.0);
         accountInfo.setAssociatedBankAccountInfo(bankAccountInfo);
-        accountInfo.setTransactions(transactions);
         user.setBuddyAccountInfo(accountInfo);
         Double deposit = 100.0;
         Double fee = monetizingService.transactionFee(deposit);
-        Double balance = user.getBuddyAccountInfo().getAccountBalance();
+        Double balance = user.getBuddyAccountInfo().getActualAccountBalance();
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
-        moneyOpsService.depositMoneyOnBuddyAccount(user.getEmail(), "IBANIBAN123456", deposit);
+        moneyOpsService.depositMoneyOnBuddyAccount(user.getEmail(), "IBANIBAN123456", deposit, "success");
         Double newBalance = balance + (deposit - fee);
-        buddyAccountInfoRepository.updateBalance(1, newBalance);
-        accountInfo.setAccountBalance(newBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(1, newBalance);
+        accountInfo.setActualAccountBalance(newBalance);
 
-        assertEquals(newBalance, user.getBuddyAccountInfo().getAccountBalance());
-        assertEquals(1, transactions.size());
+        assertEquals(newBalance, user.getBuddyAccountInfo().getActualAccountBalance());
     }
 
     @DisplayName("Deposit 0 or more than 1000 on account throws exception")
@@ -92,17 +85,17 @@ class MoneyOpsServiceImplTest {
         BuddyAccountInfo buddyAccountInfo = new BuddyAccountInfo();
         AssociatedBankAccountInfo bankAccountInfo = new AssociatedBankAccountInfo();
         bankAccountInfo.setIban("IBANIBAN123456");
-        Set<Transaction> transactions = new HashSet<>();
         buddyAccountInfo.setAssociatedBankAccountInfo(bankAccountInfo);
-        buddyAccountInfo.setTransactions(transactions);
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
         user.setBuddyAccountInfo(buddyAccountInfo);
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456", 0.0));
+                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456",
+                        0.0, "exception"));
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456", 1000.01));
+                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456",
+                        1000.01, "exception"));
     }
 
     @DisplayName("Deposit money on invalid user's email throws exception")
@@ -111,7 +104,8 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456", 0.0));
+                .depositMoneyOnBuddyAccount("email@email.com", "IBANIBAN123456",
+                        0.0, "exception"));
     }
 
     @DisplayName("Send money to users successfully")
@@ -126,11 +120,8 @@ class MoneyOpsServiceImplTest {
         receiver.setEmail("receiver@email.com");
         BuddyAccountInfo senderAccountInfo = new BuddyAccountInfo();
         BuddyAccountInfo receiverAccountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
-        senderAccountInfo.setAccountBalance(1000.0);
-        senderAccountInfo.setTransactions(transactions);
-        receiverAccountInfo.setAccountBalance(50.0);
-        receiverAccountInfo.setTransactions(transactions);
+        senderAccountInfo.setActualAccountBalance(1000.0);
+        receiverAccountInfo.setActualAccountBalance(50.0);
         sender.setBuddyAccountInfo(senderAccountInfo);
         receiver.setBuddyAccountInfo(receiverAccountInfo);
 
@@ -139,11 +130,15 @@ class MoneyOpsServiceImplTest {
 
         Double fee = monetizingService.transactionFee(10.0);
         Double newSenderBalance = 1000.0 - 10.0 - fee;
-        moneyOpsService.sendMoneyToUsers(sender.getEmail(), receiver.getEmail(), 10.0);
-        buddyAccountInfoRepository.updateBalance(sender.getUserId(), newSenderBalance);
-        buddyAccountInfoRepository.updateBalance(receiver.getUserId(), 10.1);
+        Double newRecipientBalance = 50.0 + 10.0;
+        moneyOpsService.sendMoneyToUsers(sender.getEmail(), receiver.getEmail(), 10.0, "success");
+        sender.getBuddyAccountInfo().setActualAccountBalance(newSenderBalance);
+        receiver.getBuddyAccountInfo().setActualAccountBalance(newRecipientBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(sender.getUserId(), newSenderBalance);
+        buddyAccountInfoRepository.updateActualAccountBalance(receiver.getUserId(), 10.1);
 
-        assertEquals(2, transactions.size());
+        assertEquals(989.95, sender.getBuddyAccountInfo().getActualAccountBalance());
+        assertEquals(60, receiver.getBuddyAccountInfo().getActualAccountBalance());
     }
 
     @DisplayName("Send money TO invalid user's email throws exception")
@@ -153,7 +148,8 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail("receiver@email.com")).thenReturn(null);
 
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .sendMoneyToUsers("sender@email.com", "receiver@email.com", 0.0));
+                .sendMoneyToUsers("sender@email.com", "receiver@email.com",
+                        0.0, "exception"));
     }
 
     @DisplayName("Send money FROM an invalid user's email throws exception")
@@ -163,15 +159,14 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail("receiver@email.com")).thenReturn(any(User.class));
 
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .sendMoneyToUsers("sender@email.com", "receiver@email.com", 0.0));
+                .sendMoneyToUsers("sender@email.com", "receiver@email.com",
+                        0.0, "exception"));
     }
 
     @DisplayName("Sending 0 or more than 1000 buddies to a user throws exception")
     @Test
     void givenZeroOrMoreThan1000Buddies_whenTransferringMoneyToUser_thenExceptionShouldBeThrown() {
         BuddyAccountInfo buddyAccountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
-        buddyAccountInfo.setTransactions(transactions);
         User sender = new User();
         sender.setBuddyAccountInfo(buddyAccountInfo);
         User receiver = new User();
@@ -181,9 +176,11 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(receiver);
 
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .sendMoneyToUsers("sender@email.com", "receiver@email.com", 0.0));
+                .sendMoneyToUsers("sender@email.com", "receiver@email.com",
+                        0.0, "exception"));
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .sendMoneyToUsers("sender@email.com", "receiver@email.com", 1000.01));
+                .sendMoneyToUsers("sender@email.com", "receiver@email.com",
+                        1000.01, "exception"));
     }
 
     @DisplayName("Insufficient balance throws exception")
@@ -192,9 +189,7 @@ class MoneyOpsServiceImplTest {
         User sender = new User();
         User receiver = new User();
         BuddyAccountInfo accountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
-        accountInfo.setAccountBalance(0.0);
-        accountInfo.setTransactions(transactions);
+        accountInfo.setActualAccountBalance(0.0);
         sender.setBuddyAccountInfo(accountInfo);
         receiver.setBuddyAccountInfo(accountInfo);
 
@@ -202,7 +197,8 @@ class MoneyOpsServiceImplTest {
         when(userRepository.findByEmail(anyString())).thenReturn(receiver);
 
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .sendMoneyToUsers("sender@email.com", "receiver@email.com", 100.0));
+                .sendMoneyToUsers("sender@email.com", "receiver@email.com",
+                        100.0, "exception"));
     }
 
     @DisplayName("Transfer money to bank account successfully")
@@ -213,23 +209,21 @@ class MoneyOpsServiceImplTest {
         user.setUserId(1);
         user.setEmail("correct@email.com");
         BuddyAccountInfo buddyAccountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         associatedBankAccountInfo.setIban("AZERTYUIOP123");
-        buddyAccountInfo.setAccountBalance(100.0);
-        buddyAccountInfo.setTransactions(transactions);
+        buddyAccountInfo.setActualAccountBalance(100.0);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         user.setBuddyAccountInfo(buddyAccountInfo);
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
-        moneyOpsService.transferMoneyToBankAccount("correct@email.com", "AZERTYUIOP123", 10.0);
+        moneyOpsService.transferMoneyToBankAccount("correct@email.com", "AZERTYUIOP123",
+                10.0, "accepted");
         Double fee = monetizingService.transactionFee(10.0);
         Double update = (100.0 - fee - 10.0);
-        buddyAccountInfoRepository.updateBalance(1, update);
-
-        assertEquals(1, transactions.size());
-
+        buddyAccountInfoRepository.updateActualAccountBalance(1, update);
+        user.getBuddyAccountInfo().setActualAccountBalance(update);
+        assertEquals(89.95, user.getBuddyAccountInfo().getActualAccountBalance());
     }
 
     @DisplayName("Transfer money to bank throws exception when user's email is wrong")
@@ -237,7 +231,8 @@ class MoneyOpsServiceImplTest {
     void givenNonExistingUserCredentials_whenTransferMoneyToBankAccountIsCalled_thenExceptionShouldBeThrown() {
         when(userRepository.findByEmail(anyString())).thenReturn(null);
         assertThrows(ElementNotFoundException.class, () -> moneyOpsService
-                .transferMoneyToBankAccount("wrong@email.com", "AZERTYUIOP123", 10.0));
+                .transferMoneyToBankAccount("wrong@email.com", "AZERTYUIOP123",
+                        10.0, "exception"));
     }
 
     @DisplayName("Transfer money to bank throws exception when user's iban is wrong")
@@ -246,16 +241,15 @@ class MoneyOpsServiceImplTest {
         User user = new User();
         user.setEmail("correct@email.com");
         BuddyAccountInfo buddyAccountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         associatedBankAccountInfo.setIban("AZERTYUIOP123");
-        buddyAccountInfo.setTransactions(transactions);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         user.setBuddyAccountInfo(buddyAccountInfo);
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .transferMoneyToBankAccount("correct@email.com", "WRONGIBAN", 233.3));
+                .transferMoneyToBankAccount("correct@email.com", "WRONGIBAN",
+                        233.3, "exception"));
     }
 
     @DisplayName("Transfer money to bank throws exception when user's email is wrong")
@@ -264,17 +258,16 @@ class MoneyOpsServiceImplTest {
         User user = new User();
         user.setEmail("correct@email.com");
         BuddyAccountInfo buddyAccountInfo = new BuddyAccountInfo();
-        Set<Transaction> transactions = new HashSet<>();
         AssociatedBankAccountInfo associatedBankAccountInfo = new AssociatedBankAccountInfo();
         associatedBankAccountInfo.setIban("AZERTYUIOP123");
-        buddyAccountInfo.setAccountBalance(100.0);
-        buddyAccountInfo.setTransactions(transactions);
+        buddyAccountInfo.setActualAccountBalance(100.0);
         buddyAccountInfo.setAssociatedBankAccountInfo(associatedBankAccountInfo);
         user.setBuddyAccountInfo(buddyAccountInfo);
 
         when(userRepository.findByEmail(anyString())).thenReturn(user);
 
         assertThrows(MoneyOpsException.class, () -> moneyOpsService
-                .transferMoneyToBankAccount("correct@email.com", "AZERTYUIOP123", 99.6));
+                .transferMoneyToBankAccount("correct@email.com", "AZERTYUIOP123",
+                        99.6, "exception"));
     }
 }

@@ -18,16 +18,25 @@ public interface TransactionRepository
         extends JpaRepository<Transaction, Integer> {
 
     /**
-     * Find all user's transactions.
-     * @param id the user's id
+     * Find all sent transactions related a given buddy account.
+     * @param id the buddy account id
      * @return a list of user related transactions
      */
     @Query(value =
-            "select * from transaction"
-            + " inner join"
-            + " user on user.buddy_account_info_id ="
-            + " transaction.buddy_account_info_id"
-            + " where user.user_id = ?",
+            "SELECT * FROM transaction"
+                    + " WHERE "
+                    + "transaction.sender_buddy_account_info_id = ?",
             nativeQuery = true)
-    List<Transaction> findUserTransactions(Integer id);
+    List<Transaction> findSenderTransactions(Integer id);
+
+    /**
+     * Find all received transactions related a given buddy account.
+     * @param id buddy account id
+     * @return a list of transactions
+     */
+    @Query(value = "SELECT * FROM transaction"
+            + " WHERE "
+            + "transaction.recipient_buddy_account_info_id = ?",
+            nativeQuery = true)
+    List<Transaction> findRecipientTransactions(Integer id);
 }

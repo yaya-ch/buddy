@@ -1,5 +1,6 @@
 package com.paymybuddy.buddy.domain;
 
+import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.enums.Role;
 import com.paymybuddy.buddy.enums.Civility;
 import lombok.AllArgsConstructor;
@@ -43,37 +44,6 @@ import java.util.Set;
 public class User {
 
     /**
-     * Number of maximum characters allowed in some fields.
-     */
-    private static final int MAX_LENGTH = 45;
-
-    /**
-     * Number of maximum characters allowed in passwords.
-     */
-    private static final int MAX_PASSWORD_LENGTH = 60;
-
-    /**
-     * Number of maximum characters allowed in addresses.
-     */
-    private static final int MAX_ADDRESS_LENGTH = 80;
-
-    /**
-     * Number of maximum characters allowed
-     * in zip codes as well as in civility.
-     */
-    private static final int LENGTH = 5;
-
-    /**
-     * Number of maximum and maximum characters allowed in roles.
-     */
-    private static final int ROLE_LENGTH = 10;
-
-    /**
-     * Number of maximum and maximum characters allowed in phone numbers.
-     */
-    private static final int PHONE_LENGTH = 10;
-
-    /**
      * User's id.
      */
     @Id
@@ -86,21 +56,23 @@ public class User {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "civility", updatable = false, length = LENGTH)
+    @Column(name = "civility", updatable = false, length = ConstantNumbers.FIVE)
     private Civility civility;
 
     /**
      * User's first name.
      */
     @NotNull
-    @Column(name = "first_name", updatable = false, length = MAX_LENGTH)
+    @Column(name = "first_name", updatable = false,
+            length = ConstantNumbers.FORTY_FIVE)
     private String firstName;
 
     /**
      * User's last name.
      */
     @NotNull
-    @Column(name = "last_name", updatable = false, length = MAX_LENGTH)
+    @Column(name = "last_name", updatable = false,
+            length = ConstantNumbers.FORTY_FIVE)
     private String lastName;
 
     /**
@@ -108,14 +80,14 @@ public class User {
      */
     @Email
     @NotNull
-    @Column(name = "email", unique = true, length = MAX_LENGTH)
+    @Column(name = "email", unique = true, length = ConstantNumbers.FORTY_FIVE)
     private String email;
 
     /**
      * User's password.
      */
     @NotNull
-    @Column(name = "password", length = MAX_PASSWORD_LENGTH)
+    @Column(name = "password", length = ConstantNumbers.SIXTY)
     private String password;
 
     /**
@@ -123,7 +95,7 @@ public class User {
      */
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "role", updatable = false, length = ROLE_LENGTH)
+    @Column(name = "role", updatable = false, length = ConstantNumbers.TEN)
     private Role role;
 
     /**
@@ -137,28 +109,28 @@ public class User {
      * User's address.
      */
     @NotNull
-    @Column(name = "address", length = MAX_ADDRESS_LENGTH)
+    @Column(name = "address", length = ConstantNumbers.EIGHTY)
     private String address;
 
     /**
      * A city where a user lives.
      */
     @NotNull
-    @Column(name = "city", length = MAX_LENGTH)
+    @Column(name = "city", length = ConstantNumbers.FORTY_FIVE)
     private String city;
 
     /**
      * The city's zip code.
      */
     @NotNull
-    @Column(name = "zip", length = LENGTH)
+    @Column(name = "zip", length = ConstantNumbers.FIVE)
     private String zip;
 
     /**
      * User's phone number.
      */
     @NotNull
-    @Column(name = "phone", length = PHONE_LENGTH)
+    @Column(name = "phone", length = ConstantNumbers.TEN)
     private String phone;
 
     /**
