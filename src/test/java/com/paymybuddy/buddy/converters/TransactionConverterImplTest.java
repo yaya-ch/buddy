@@ -2,8 +2,10 @@ package com.paymybuddy.buddy.converters;
 
 import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
+import com.paymybuddy.buddy.domain.TransactionStatus;
 import com.paymybuddy.buddy.dto.BuddyAccountInfoTransactionsDTO;
 import com.paymybuddy.buddy.dto.TransactionDTO;
+import com.paymybuddy.buddy.dto.TransactionStatusDTO;
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
 import org.junit.jupiter.api.*;
@@ -42,10 +44,7 @@ class TransactionConverterImplTest {
         transaction.setAmount(150.0);
         transaction.setFee(10.0);
         transaction.setDescription("Birthday gift");
-        transaction.setInitialTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
-        transaction.setInitialTransactionStatusInfoDate(new Date());
-        transaction.setFinalTransactionStatusInfo(TransactionStatusInfo.TRANSACTION_ACCEPTED);
-        transaction.setFinalTransactionStatusInfoDate(new Date());
+        transaction.setTransactionStatus(transactionStatus());
         return transaction;
     }
 
@@ -59,11 +58,26 @@ class TransactionConverterImplTest {
         transactionDTO.setAmount(200.0);
         transactionDTO.setFee(20.0);
         transactionDTO.setDescription("Your money");
-        transactionDTO.setInitialTransactionStatusInfo("TRANSACTION_IN_PROGRESS");
-        transactionDTO.setInitialTransactionStatusInfoDate(new Date());
-        transactionDTO.setFinalTransactionStatusInfo("TRANSACTION_REJECTED");
-        transactionDTO.setFinalTransactionStatusInfoDate(new Date());
+        transactionDTO.setTransactionStatus(transactionStatusDTO());
         return transactionDTO;
+    }
+
+    private TransactionStatus transactionStatus() {
+        TransactionStatus transactionStatus = new TransactionStatus(
+                TransactionStatusInfo.TRANSACTION_IN_PROGRESS,
+                new Date(),
+                TransactionStatusInfo.TRANSACTION_ACCEPTED,
+                new Date());
+        return transactionStatus;
+
+    }
+    private TransactionStatusDTO transactionStatusDTO() {
+        TransactionStatusDTO transactionStatusDTO = new TransactionStatusDTO();
+        transactionStatusDTO.setInitialTransactionStatusInfo("TRANSACTION_IN_PROGRESS");
+        transactionStatusDTO.setInitialTransactionStatusInfoDate(new Date());
+        transactionStatusDTO.setFinalTransactionStatusInfo("TRANSACTION_REJECTED");
+        transactionStatusDTO.setFinalTransactionStatusInfoDate(new Date());
+        return transactionStatusDTO;
     }
 
     @BeforeEach
@@ -91,10 +105,14 @@ class TransactionConverterImplTest {
         assertEquals(transactionDTO1.getTransactionNature(), transaction.getTransactionNature().toString());
         assertEquals(transactionDTO1.getAmount(), transaction.getAmount());
         assertEquals(transactionDTO1.getFee(), transaction.getFee());
-        assertEquals(transactionDTO1.getInitialTransactionStatusInfo(), transaction.getInitialTransactionStatusInfo().toString());
-        assertEquals(transactionDTO1.getInitialTransactionStatusInfoDate(), transaction.getInitialTransactionStatusInfoDate());
-        assertEquals(transactionDTO1.getFinalTransactionStatusInfo(), transaction.getFinalTransactionStatusInfo().toString());
-        assertEquals(transactionDTO1.getFinalTransactionStatusInfoDate(), transaction.getFinalTransactionStatusInfoDate());
+        assertEquals(transactionDTO1.getTransactionStatus().getInitialTransactionStatusInfo(),
+                transaction.getTransactionStatus().getInitialTransactionStatusInfo().toString());
+        assertEquals(transactionDTO1.getTransactionStatus().getInitialTransactionStatusInfoDate(),
+                transaction.getTransactionStatus().getInitialTransactionStatusInfoDate());
+        assertEquals(transactionDTO1.getTransactionStatus().getFinalTransactionStatusInfo(),
+                transaction.getTransactionStatus().getFinalTransactionStatusInfo().toString());
+        assertEquals(transactionDTO1.getTransactionStatus().getFinalTransactionStatusInfoDate(),
+                transaction.getTransactionStatus().getFinalTransactionStatusInfoDate());
         assertEquals(transactionDTO1.getDescription(), transaction.getDescription());
     }
 
@@ -119,10 +137,14 @@ class TransactionConverterImplTest {
         assertEquals(transaction1.getAmount(), transactionDTO.getAmount());
         assertEquals(transaction1.getFee(), transactionDTO.getFee());
         assertEquals(transaction1.getDescription(), transactionDTO.getDescription());
-        assertEquals(transaction1.getInitialTransactionStatusInfo().toString(), transactionDTO.getInitialTransactionStatusInfo());
-        assertEquals(transaction1.getInitialTransactionStatusInfoDate(), transactionDTO.getInitialTransactionStatusInfoDate());
-        assertEquals(transaction1.getFinalTransactionStatusInfo().toString(), transactionDTO.getFinalTransactionStatusInfo());
-        assertEquals(transaction1.getFinalTransactionStatusInfoDate(), transactionDTO.getFinalTransactionStatusInfoDate());
+        assertEquals(transaction1.getTransactionStatus().getInitialTransactionStatusInfo().toString(),
+                transactionDTO.getTransactionStatus().getInitialTransactionStatusInfo());
+        assertEquals(transaction1.getTransactionStatus().getInitialTransactionStatusInfoDate(),
+                transactionDTO.getTransactionStatus().getInitialTransactionStatusInfoDate());
+        assertEquals(transaction1.getTransactionStatus().getFinalTransactionStatusInfo().toString(),
+                transactionDTO.getTransactionStatus().getFinalTransactionStatusInfo());
+        assertEquals(transaction1.getTransactionStatus().getFinalTransactionStatusInfoDate(),
+                transactionDTO.getTransactionStatus().getFinalTransactionStatusInfoDate());
     }
 
     @DisplayName("Convert TransactionDTO list to Transaction entity list")

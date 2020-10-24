@@ -1,6 +1,7 @@
 package com.paymybuddy.buddy.controllers;
 
 import com.paymybuddy.buddy.dto.TransactionDTO;
+import com.paymybuddy.buddy.dto.TransactionStatusDTO;
 import com.paymybuddy.buddy.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,14 +45,20 @@ class TransactionControllerTest {
 
     private TransactionDTO transaction;
 
+    private TransactionStatusDTO transactionStatus;
+
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
         transaction = new TransactionDTO();
+        transactionStatus = new TransactionStatusDTO();
         transaction.setAmount(100.5);
-        transaction.setInitialTransactionStatusInfo("TRANSACTION_ACCEPTED");
         transaction.setTransactionNature("TO_CONTACTS");
-        transaction.setInitialTransactionStatusInfoDate(new Date());
+        transactionStatus.setInitialTransactionStatusInfo("TRANSACTION_IN_PROGRESS");
+        transactionStatus.setInitialTransactionStatusInfoDate(new Date());
+        transactionStatus.setFinalTransactionStatusInfo("TRANSACTION_ACCEPTED");
+        transactionStatus.setFinalTransactionStatusInfoDate(new Date());
+        transaction.setTransactionStatus(transactionStatus);
     }
 
     @DisplayName("Find by id returns correct transaction")
