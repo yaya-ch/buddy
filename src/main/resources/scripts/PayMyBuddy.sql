@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `pay_my_buddy_db`.`associated_bank_account_info` (
   UNIQUE INDEX `UK_hgkdery8n6fsnbahfn5jf2jwq` (`bic` ASC) VISIBLE,
   UNIQUE INDEX `UK_j4o01tjxdvceb96h5a0ql5a8b` (`iban` ASC) VISIBLE)
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -39,7 +39,8 @@ COLLATE = utf8mb4_0900_ai_ci;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `pay_my_buddy_db`.`buddy_account_info` (
   `buddy_account_info_id` INT NOT NULL AUTO_INCREMENT,
-  `account_balance` DOUBLE NOT NULL,
+  `actual_account_balance` DOUBLE NOT NULL,
+  `previous_account_balance` DOUBLE NOT NULL,
   `associated_bank_account_info_id` INT NOT NULL,
   PRIMARY KEY (`buddy_account_info_id`),
   INDEX `FKt7y7yvh9n3nfqne3rh8mkod80` (`associated_bank_account_info_id` ASC) VISIBLE,
@@ -47,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `pay_my_buddy_db`.`buddy_account_info` (
     FOREIGN KEY (`associated_bank_account_info_id`)
     REFERENCES `pay_my_buddy_db`.`associated_bank_account_info` (`associated_bank_account_info_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -76,7 +77,7 @@ CREATE TABLE IF NOT EXISTS `pay_my_buddy_db`.`user` (
     FOREIGN KEY (`buddy_account_info_id`)
     REFERENCES `pay_my_buddy_db`.`buddy_account_info` (`buddy_account_info_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 5
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
@@ -106,17 +107,26 @@ COLLATE = utf8mb4_0900_ai_ci;
 CREATE TABLE IF NOT EXISTS `pay_my_buddy_db`.`transaction` (
   `transaction_id` INT NOT NULL AUTO_INCREMENT,
   `amount` DOUBLE NOT NULL,
-  `transaction_date` DATETIME(6) NOT NULL,
+  `description` VARCHAR(200) NOT NULL,
+  `fee` DOUBLE NULL DEFAULT NULL,
+  `final_transaction_status_info` VARCHAR(25) NOT NULL,
+  `final_transaction_status_info_date` DATETIME(6) NOT NULL,
+  `initial_transaction_status_info` VARCHAR(25) NOT NULL,
+  `initial_transaction_status_info_date` DATETIME(6) NOT NULL,
   `transaction_nature` VARCHAR(25) NOT NULL,
-  `transaction_status_info` VARCHAR(25) NOT NULL,
-  `buddy_account_info_id` INT NULL DEFAULT NULL,
+  `recipient_buddy_account_info_id` INT NOT NULL,
+  `sender_buddy_account_info_id` INT NOT NULL,
   PRIMARY KEY (`transaction_id`),
-  INDEX `FKhs6tv8p007u7yivaaowp3uqkt` (`buddy_account_info_id` ASC) VISIBLE,
-  CONSTRAINT `FKhs6tv8p007u7yivaaowp3uqkt`
-    FOREIGN KEY (`buddy_account_info_id`)
+  INDEX `FK8iaddypoiqsbc0ii2g2l285dt` (`recipient_buddy_account_info_id` ASC) VISIBLE,
+  INDEX `FKcanam414jeyelnduxy947uebg` (`sender_buddy_account_info_id` ASC) VISIBLE,
+  CONSTRAINT `FK8iaddypoiqsbc0ii2g2l285dt`
+    FOREIGN KEY (`recipient_buddy_account_info_id`)
+    REFERENCES `pay_my_buddy_db`.`buddy_account_info` (`buddy_account_info_id`),
+  CONSTRAINT `FKcanam414jeyelnduxy947uebg`
+    FOREIGN KEY (`sender_buddy_account_info_id`)
     REFERENCES `pay_my_buddy_db`.`buddy_account_info` (`buddy_account_info_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 37
+AUTO_INCREMENT = 4
 DEFAULT CHARACTER SET = utf8mb4
 COLLATE = utf8mb4_0900_ai_ci;
 
