@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Yahia CHERIFI
+ * This class is used to load users from db.
+ * It uses mainly the UserDetails to load the correct user.
  */
 
 @Service("userDetailsService")
