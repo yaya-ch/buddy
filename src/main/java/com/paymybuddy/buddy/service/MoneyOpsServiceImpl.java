@@ -3,6 +3,7 @@ package com.paymybuddy.buddy.service;
 import com.paymybuddy.buddy.constants.ConstantNumbers;
 import com.paymybuddy.buddy.domain.BuddyAccountInfo;
 import com.paymybuddy.buddy.domain.Transaction;
+import com.paymybuddy.buddy.domain.TransactionStatus;
 import com.paymybuddy.buddy.domain.User;
 import com.paymybuddy.buddy.enums.TransactionNature;
 import com.paymybuddy.buddy.enums.TransactionStatusInfo;
@@ -344,6 +345,23 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
     }
 
     /**
+     * Create a new transaction status.
+     * @param finalTransactionStatus the final state of a transaction
+     * @return a new instance of TransactionStatus
+     */
+    private TransactionStatus createNewTransactionStatus(
+            final TransactionStatusInfo finalTransactionStatus) {
+        TransactionStatus transactionStatus = new TransactionStatus();
+        transactionStatus.setInitialTransactionStatusInfo(
+                TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
+        transactionStatus.setInitialTransactionStatusInfoDate(new Date());
+        transactionStatus.setFinalTransactionStatusInfo(
+                finalTransactionStatus);
+        transactionStatus.setFinalTransactionStatusInfoDate(new Date());
+        return transactionStatus;
+    }
+
+    /**
      * This local method is used to create transactions.
      *                  between buddy and bank accounts
      * @param user the user to whom the
@@ -366,13 +384,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
         transaction.setDescription(description);
         transaction.setTransactionNature(
                 TransactionNature.BETWEEN_ACCOUNTS);
-        //INITIAL STATUS
-        transaction.setInitialTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
-        transaction.setInitialTransactionStatusInfoDate(new Date());
-        //FINAL STATUS
-        transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
-        transaction.setFinalTransactionStatusInfoDate(new Date());
+        //CREATE A TRANSACTION STATUS
+        transaction.setTransactionStatus(
+                createNewTransactionStatus(finalTransactionStatusInfo));
         //SAVE THE TRANSACTION
         transactionRepository.save(transaction);
     }
@@ -402,13 +416,9 @@ public class MoneyOpsServiceImpl implements MoneyOpsService {
         transaction.setDescription(description);
         transaction.setTransactionNature(
                 TransactionNature.TO_CONTACTS);
-        //INITIAL STATUS
-        transaction.setInitialTransactionStatusInfo(
-                TransactionStatusInfo.TRANSACTION_IN_PROGRESS);
-        transaction.setInitialTransactionStatusInfoDate(new Date());
-        //FINAL STATUS
-        transaction.setFinalTransactionStatusInfo(finalTransactionStatusInfo);
-        transaction.setFinalTransactionStatusInfoDate(new Date());
+        //CREATE A TRANSACTION STATUS
+        transaction.setTransactionStatus(
+                createNewTransactionStatus(finalTransactionStatusInfo));
         //SAVE THE TRANSACTION
         transactionRepository.save(transaction);
     }
